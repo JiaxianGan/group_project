@@ -1,0 +1,93 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.auth-page {
+    background-image: url('auth_background.jpg'); /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Centering Container */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* Box with Login & Register Side by Side */
+.box {
+    display: flex;
+    width: 900px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.85); /* Semi-transparent white */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Login Section (Left) */
+.left {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.9); /* Slight transparency */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 50px;
+}
+
+/* Register Section (Right) */
+.right {
+    flex: 1;
+    background: rgba(14, 157, 87, 0.85); /* Green with transparency */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 50px;
+    backdrop-filter: blur(5px);
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background: #0e9d57;
+    color: white;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #09814a;
+}
+
+p {
+    margin-top: 15px;
+}
+
+p a {
+    color: #0e9d57;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
