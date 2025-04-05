@@ -100,30 +100,39 @@ $result = $conn->query($query);
                         <th>Vendor Name</th>
                         <th>Email</th>
                         <th>Contact</th>
+                        <th>Business Name</th>
+                        <th>Subscription Tier</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="vendorTable">
                     <?php while ($row = $result->fetch_assoc()) { ?>
                         <tr>
-                            <td><?php echo $row['vendor_id']; ?></td>
+                            <td><?php echo $row['user_id']; ?></td>
                             <td><?php echo $row['vendor_name']; ?></td>
                             <td><?php echo $row['email']; ?></td>
                             <td><?php echo $row['contact']; ?></td>
+                            <td><?php echo $row['business_name']; ?></td>
+                            <td><?php echo $row['subscription_tier']; ?></td>
+                            
                             <td>
                                 <a href="edit_vendor.php?id=<?php echo $row['vendor_id']; ?>" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="delete_vendor.php?id=<?php echo $row['vendor_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this vendor?');">
                                     <i class="fas fa-trash-alt"></i>
+                                    
                                 </a>
+                                
                             </td>
                         </tr>
                     <?php } ?>
                 </tbody>
             </table>
+            
         </div>
     </div>
+    
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
