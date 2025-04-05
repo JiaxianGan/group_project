@@ -2,9 +2,10 @@
 session_start();
 include 'db_connect.php';
 
-// Ensure user is logged in
+// Check if the user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+    // Redirect to auth.php (login page) if not logged in
+    header("Location: auth.php");
     exit();
 }
 
@@ -12,6 +13,7 @@ if (!isset($_SESSION['username'])) {
 $query = "SELECT * FROM orders";
 $result = $conn->query($query);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
