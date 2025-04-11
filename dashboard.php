@@ -1,9 +1,7 @@
 <?php
 session_start();
 
-// Check if the user is logged in
 if (!isset($_SESSION['username'])) {
-    // Redirect to auth.php (login page) if not logged in
     header("Location: auth.php");
     exit();
 }
@@ -18,7 +16,7 @@ if (!isset($_SESSION['username'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-image: url('dashboard_background.jpg'); /* Replace with your image path */
+            background-image: url('dashboard_background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -150,56 +148,54 @@ if (!isset($_SESSION['username'])) {
     </style>
 </head>
 <body>
-
-<!-- Navbar (Merged from navbar.html) -->
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" href="#">AgriMarket</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <div class="search-container">
-                    <input type="text" placeholder="Search Products...">
-                    <button>🔍</button>
-                    <div class="icons">
-                        <span>👤</span>
-                        <span>🛒</span>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">AgriMarket</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <div class="search-container">
+                        <input type="text" placeholder="Search Products...">
+                        <button>🔍</button>
+                        <div class="icons">
+                            <span>👤</span>
+                            <span>🛒</span>
+                        </div>
                     </div>
-                </div>
-                <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="orders.php">Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="vendors.php">Vendors</a></li>
-                <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
-                <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<!-- Dashboard Hero Section -->
-<div class="container dashboard-container">
-    <section class="hero">
-        <div class="hero-text">
-            <!-- Welcome Message -->
-            <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
-            <p>Enjoy managing your agricultural market.</p>
-            <button class="about-btn btn btn-outline-success">ABOUT OUR FARM</button>
-            <h1>The Place Where <br> <span class="highlight">Natural Flavour</span> is Born</h1>
-            <p>We bring you fresh, natural flavors straight from the farm. Experience the best quality produce with us.</p>
-            <div class="hero-buttons">
-                <button class="shop-btn">Shop Online</button>
-                <button class="info-btn">Know More</button>
+                    <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="orders.php">Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendors.php">Vendors</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
+                    <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
+                </ul>
             </div>
         </div>
-        <div class="hero-image">
-            <img src="farm.jpg" alt="Farm Image">
-        </div>
-    </section>
-</div>
+    </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Dashboard Hero Section -->
+    <div class="container dashboard-container">
+        <section class="hero">
+            <div class="hero-text">
+                <!-- Welcome Message -->
+                <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+                <p>Enjoy managing your agricultural market.</p>
+                <a href="about.php" class="about-btn btn btn-outline-success">ABOUT OUR FARM</a>
+                <h1>The Place Where <br> <span class="highlight">Natural Flavour</span> is Born</h1>
+                <p>We bring you fresh, natural flavors straight from the farm. Experience the best quality produce with us.</p>
+                <div class="hero-buttons">
+                    <a href="products.php" class="shop-btn btn">Shop Online</a>
+                    <a href="vendors.php" class="info-btn btn">Know More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="farm.jpg" alt="Farm Image">
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

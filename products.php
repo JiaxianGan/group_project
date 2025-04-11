@@ -2,18 +2,8 @@
 session_start();
 include 'db_connect.php';
 
-$products = [
-    ["name" => "Durian Musang King", "description" => "Rich, creamy texture with a bittersweet flavor.", "price" => "68.00", "image_url" => "https://tse1.mm.bing.net/th?id=OIP.W05qsel0P3VG2cqjWIiH7AHaE8&pid=Api"],
-    ["name" => "Cameron Highland Strawberries", "description" => "Juicy and sweet strawberries from Malaysia's highlands.", "price" => "25.00", "image_url" => "https://tse3.mm.bing.net/th?id=OIP.vGqjYaj28cMWNd9DM53HeAHaGg&pid=Api"],
-    ["name" => "Organic Bananas", "description" => "Delicious, naturally grown bananas with no chemicals.", "price" => "12.00", "image_url" => "https://tse2.mm.bing.net/th?id=OIP.ZV-B3MDmXuuKC1P7df1ESwHaJ4&pid=Api"],
-    ["name" => "Red Chillies", "description" => "Bright, spicy red chillies perfect for any dish.", "price" => "15.00", "image_url" => "https://tse2.mm.bing.net/th?id=OIP.krjhVVPi3w9vw7GkRmp8RQHaE8&pid=Api"],
-    ["name" => "Pak Choy", "description" => "Fresh, vitamin-rich leafy green for stir-fries and soups.", "price" => "8.00", "image_url" => "pak_choy.jpg"],
-    ["name" => "Sweet Corn", "description" => "Juicy and fresh, perfect for boiling or grilling.", "price" => "10.00", "image_url" => "sweet_corn.jpg"],
-    ["name" => "Organic Fertilizer", "description" => "Eco-friendly fertilizer for healthy plant growth.", "price" => "30.00", "image_url" => "organic_fertilizer.jpg"],
-    ["name" => "Hybrid Papaya", "description" => "Sweet, long-lasting papaya variety.", "price" => "18.00", "image_url" => "hybrid_papaya.jpg"],
-    ["name" => "Fresh Cucumbers", "description" => "Crisp and hydrating cucumbers, great for salads.", "price" => "9.00", "image_url" => "cucumbers.jpg"],
-    ["name" => "Dragon Fruit", "description" => "Nutrient-rich fruit with a vibrant appearance.", "price" => "22.00", "image_url" => "dragon_fruit.jpg"]
-];
+$sql = "SELECT * FROM products ORDER BY product_id DESC";
+$result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,24 +87,28 @@ $products = [
         <a href="add_product.php" class="btn btn-light mb-3">Add New Product</a>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
-            <?php foreach ($products as $product) { ?>
-                <div class="col">
-                    <div class="card product-card">
-                        <img src="<?php echo $product['image_url']; ?>" class="card-img-top" alt="<?php echo $product['name']; ?>">
-                        <div class="card-body d-flex flex-column">
-                            <div class="product-body">
-                                <h5 class="card-title text-success"><?php echo $product['name']; ?></h5>
-                                <p class="card-text"><?php echo $product['description']; ?></p>
-                                <p class="text-success fw-bold">RM <?php echo $product['price']; ?></p>
-                            </div>
-                            <div class="btn-group">
-                                <a href="edit_product.php?id=<?php echo $product['name']; ?>" class="btn btn-primary">Edit</a>
-                                <a href="delete_product.php?id=<?php echo $product['name']; ?>" class="btn btn-danger">Delete</a>
+            <?php if ($result->num_rows > 0): ?>
+                <?php while($product = $result->fetch_assoc()): ?>
+                    <div class="col">
+                        <div class="card product-card">
+                            <img src="uploads/<?php echo htmlspecialchars($product['image_url']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                            <div class="card-body d-flex flex-column">
+                                <div class="product-body">
+                                    <h5 class="card-title text-success"><?php echo htmlspecialchars($product['name']); ?></h5>
+                                    <p class="card-text"><?php echo htmlspecialchars($product['description']); ?></p>
+                                    <p class="text-success fw-bold">RM <?php echo number_format($product['price'], 2); ?></p>
+                                </div>
+                                <div class="btn-group">
+                                    <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">Edit</a>
+                                    <a href="delete_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php } ?>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p class="text-white">No products found.</p>
+            <?php endif; ?>
         </div>
     </div>
 
