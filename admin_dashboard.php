@@ -196,6 +196,67 @@ if (!isset($_SESSION['username'])) {
         </section>
     </div>
 
+    <!-- Search and User Management Section -->
+    <div class="container dashboard-container">
+        <section class="search-user-management">
+            <div class="search-container">
+                <input type="text" placeholder="Search Products...">
+                <button>🔍</button>
+                <div class="icons">
+                    <span>👤</span>
+                    <span>🛒</span>
+                </div>
+            </div>
+            <!-- User Management Actions -->
+            <div class="user-management">
+                <!-- Example buttons for user actions -->
+                <button class="edit-user" data-user-id="1">Edit User</button>
+                <button class="delete-user" data-user-id="1">Delete User</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Role Management and System Overview Section -->
+    <div class="container dashboard-container">
+        <section class="role-system-overview">
+            <!-- Role Management Form -->
+            <form id="role-form">
+                <select name="role">
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+                <button type="submit">Change Role</button>
+            </form>
+            <!-- System Overview -->
+            <div class="system-overview">
+                <p>System Status: <span id="system-status">Loading...</span></p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Recent Orders and Product Approval Section -->
+    <div class="container dashboard-container">
+        <section class="orders-product-approval">
+            <!-- Recent Orders -->
+            <div class="recent-orders">
+                <button class="view-order" data-order-id="1">View Order</button>
+            </div>
+            <!-- Product Approval -->
+            <div class="product-approval">
+                <button class="approve-product" data-product-id="1">Approve</button>
+                <button class="reject-product" data-product-id="1">Reject</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Dynamic Data Loading Section -->
+    <div class="container dashboard-container">
+        <section class="dynamic-data">
+            <p>Loading dynamic data...</p>
+        </section>
+    </div>
+
+    <script src="admin_dashboard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
