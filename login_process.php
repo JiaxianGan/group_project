@@ -41,8 +41,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["username"] = $db_username;
             $_SESSION["role"] = $role;
 
-            // Redirect to dashboard.php
-            header("Location: dashboard.php");
+            // Redirect based on role
+            if ($role === 'admin') {
+                header("Location: admin_dashboard.php");
+            } elseif ($role === 'vendor') {
+                header("Location: vendor_dashboard.php");
+            } elseif ($role === 'staff') {
+                header("Location: staff_dashboard.php");
+            } elseif ($role === 'customer') {
+                header("Location: customer_dashboard.php");
+            } else {
+                // Redirect back to auth.php if role is not recognized
+                header("Location: auth.php");
+            }
             exit();
         } else {
             $_SESSION['error'] = "Incorrect password.";

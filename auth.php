@@ -25,8 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: vendor_dashboard.php");
             } elseif ($user['role'] == 'staff') {
                 header("Location: staff_dashboard.php");
-            } else {
+            } elseif ($user['role'] == 'customer') {
                 header("Location: customer_dashboard.php");
+            } else {
+                // Redirect back to auth.php if role is not recognized
+                header("Location: auth.php");
             }
             exit();
         } else {

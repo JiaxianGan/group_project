@@ -5,17 +5,14 @@ function handleSearch() {
     searchButton.addEventListener('click', () => {
         const query = searchInput.value;
         // Perform AJAX request to search endpoint
-        console.log('Searching for:', query);
-        // Example AJAX call
-        // fetch(`/search?query=${query}`)
-        //     .then(response => response.json())
-        //     .then(data => console.log(data));
+        fetch(`/search?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => console.log('Search results:', data));
     });
 }
 
 // User Management
 function handleUserActions() {
-    // Example: Edit and Delete buttons
     document.querySelectorAll('.edit-user').forEach(button => {
         button.addEventListener('click', () => {
             const userId = button.dataset.userId;
@@ -38,18 +35,23 @@ function handleRoleChange() {
     roleForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const formData = new FormData(roleForm);
-        console.log('Role change data:', formData);
-        // Validate and send AJAX request
+        fetch('/change-role', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log('Role change response:', data));
     });
 }
 
 // System Overview
 function updateSystemOverview() {
-    // Example: Fetch system status
-    console.log('Updating system overview');
-    // fetch('/system-status')
-    //     .then(response => response.json())
-    //     .then(data => console.log(data));
+    fetch('/system-status')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('system-status').textContent = data.status;
+            console.log('System status:', data);
+        });
 }
 
 // Recent Orders
@@ -83,10 +85,12 @@ function handleProductApproval() {
 
 // Dynamic Data Loading
 function loadDynamicData() {
-    console.log('Loading dynamic data');
-    // fetch('/dashboard-data')
-    //     .then(response => response.json())
-    //     .then(data => console.log(data));
+    fetch('/dashboard-data')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Dynamic data:', data);
+            // Update dashboard with dynamic data
+        });
 }
 
 // Initialize all functions
