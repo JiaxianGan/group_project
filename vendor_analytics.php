@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['vendor_name'])) {
+if (!isset($_SESSION['vendor_username'])) {
     header("Location: auth.php");
     exit();
 }
