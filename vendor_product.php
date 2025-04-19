@@ -46,13 +46,13 @@ $result = $stmt->get_result();
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="vendor_dashboard.php">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendors_dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_profile.php">Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_orders.php">Orders</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_stock_alerts.php">Stock Alerts</a></li>
-                    <li class="nav-item"><a class="nav-link" href="vendor_reviews.php">Reviews</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_subscriptions.php">Subscriptions</a></li>
-                    <li class="nav-item"><a class="nav-link" href="vendor_analytics.php">Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendor_staff.php">Staff Management</a></li>
+                    
                 </ul>
             </div>
         </div>
