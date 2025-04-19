@@ -62,6 +62,10 @@ if (!isset($_SESSION['username'])) {
         .btn-success:hover {
             background-color: #1e7e34;
         }
+
+        .btn-warning {
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +107,7 @@ if (!isset($_SESSION['username'])) {
                         <th>Email</th>
                         <th>Contact</th>
                         <th>Tier</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,10 +123,14 @@ if (!isset($_SESSION['username'])) {
                                     <td>" . htmlspecialchars($row['email']) . "</td>
                                     <td>" . htmlspecialchars($row['contact']) . "</td>
                                     <td>" . htmlspecialchars(ucfirst($row['subscription_tier'])) . "</td>
+                                    <td>
+                                        <a href='edit_vendor.php?vendor_id=" . $row['vendor_id'] . "' class='btn btn-warning btn-sm'><i class='fas fa-edit'></i></a>
+                                        <a href='delete_vendor.php?vendor_id=" . $row['vendor_id'] . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this vendor?');\"><i class='fas fa-trash'></i></a>
+                                    </td>
                                 </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='5' class='text-danger text-center'>No vendors found.</td></tr>";
+                        echo "<tr><td colspan='6' class='text-danger text-center'>No vendors found.</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -146,6 +155,7 @@ if (!isset($_SESSION['username'])) {
                         <th>Price (RM)</th>
                         <th>Stock</th>
                         <th>Added On</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -167,10 +177,14 @@ if (!isset($_SESSION['username'])) {
                                     <td>" . number_format($row['price'], 2) . "</td>
                                     <td>" . (int)$row['stock_quantity'] . "</td>
                                     <td>" . htmlspecialchars($row['created_at']) . "</td>
+                                    <td>
+                                        <a href='edit_vendor_product.php?id=" . $row['product_id'] . "' class='btn btn-warning btn-sm'><i class='fas fa-edit'></i></a>
+                                        <a href='delete_vendor_product.php?id=" . $row['product_id'] . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?');\"><i class='fas fa-trash'></i></a>
+                                    </td>
                                 </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='6' class='text-danger text-center'>No products found.</td></tr>";
+                        echo "<tr><td colspan='7' class='text-danger text-center'>No products found.</td></tr>";
                     }
                     ?>
                 </tbody>
