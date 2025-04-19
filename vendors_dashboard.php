@@ -1,10 +1,12 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['vendor_name'])) {
+include 'db_connect.php';
+if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -133,9 +135,9 @@ if (!isset($_SESSION['vendor_name'])) {
                     <li class="nav-item"><a class="nav-link" href="vendor_product.php">Products</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_orders.php">Orders</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_stock_alerts.php">Stock Alerts</a></li>
-                    <li class="nav-item"><a class="nav-link" href="vendor_reviews.php">Reviews</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_subscriptions.php">Subscriptions</a></li>
-                    <li class="nav-item"><a class="nav-link" href="vendor_analytics.php">Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendor_staff.php">Staff Management</a></li>
+                    
                 </ul>
             </div>
         </div>
@@ -145,12 +147,12 @@ if (!isset($_SESSION['vendor_name'])) {
     <div class="container dashboard-container">
         <section class="hero">
             <div class="hero-text">
-                <h2>Welcome, <?php echo htmlspecialchars($_SESSION['vendor_name']); ?>!</h2>
+                <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
                 <p>Manage your products and orders efficiently.</p>
                 <h1>Your Dashboard</h1>
                 <p>Stay updated with your sales and customer feedback.</p>
                 <div class="hero-buttons">
-                    <a href="vendor_products.php" class="shop-btn btn">Manage Products</a>
+                    <a href="vendor_product.php" class="shop-btn btn">Manage Products</a>
                     <a href="vendor_orders.php" class="info-btn btn">View Orders</a>
                 </div>
             </div>
