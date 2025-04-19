@@ -59,21 +59,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['order_id'])) {
             background-attachment: fixed;
         }
         .navbar {
-            background-color: #155724 !important;
+            background-color:rgb(229, 3, 250) !important;
         }
         .navbar .nav-link {
-            color: white !important;
+            color:black !important;
         }
         .navbar .nav-link:hover {
-            background-color: #1e7e34;
+            background-color:rgb(123, 248, 148);
             border-radius: 5px;
         }
         .container {
             padding: 40px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 10px rgba(4, 213, 236, 0.83);
         }
+        .navbar-brand {
+            color:rgb(26, 21, 1); /* Change this to your desired color */
+    }
     </style>
 </head>
 <body>
@@ -85,10 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['order_id'])) {
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="vendor_dashboard.php">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="vendor_orders.php">Your Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendors_dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="vendor_profile.php">Profile</a></li>
-                    <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendor_orders.php">Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendor_stock_alerts.php">Stock Alerts</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendor_subscriptions.php">Subscriptions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendor_staff.php">Staff Management</a></li>
                 </ul>
             </div>
         </div>
