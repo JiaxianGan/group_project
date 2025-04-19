@@ -1,8 +1,40 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['vendor_username'])) {
+include 'db_connect.php';
+if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
+    exit();
+}
+
+$vendor_id = isset($_SESSION['vendor_id']) ? $_SESSION['vendor_id'] : 1;
+
+$query = "SELECT email, business_name, description, subscription_tier, contact FROM vendors WHERE vendor_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $vendor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$vendors = $result->fetch_assoc();
+
+$update_success = false; // Variable to track update success
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Update vendor details
+    $email = $_POST['email'];
+    $business_name = $_POST['business_name'];
+    $description = $_POST['description'];
+    $subscription_tier = $_POST['subscription_tier'];
+    $contact = $_POST['contact'];
+
+    $update_query = "UPDATE vendors SET email=?, business_name=?, description=?, subscription_tier=?, contact=? WHERE vendor_id=?";
+    $update_stmt = $conn->prepare($update_query);
+    $update_stmt->bind_param("ssssss", $email, $business_name, $description, $subscription_tier, $contact, $vendor_id);
+    
+    if ($update_stmt->execute()) {
+        $update_success = true; // Set success to true if update is successful
+    }
+
+    // Redirect to vendor_dashboard.php after update
+    header("Location: vendors_dashboard.php?update=success");
     exit();
 }
 ?>
@@ -15,7 +47,28 @@ if (!isset($_SESSION['vendor_username'])) {
     <title>Vendor Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Add your custom styles here */
+        body {
+            background-image: url('dashboard_background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .navbar {
+            background-color: #155724 !important;
+        }
+        .navbar .nav-link {
+            color: white !important;
+        }
+        .navbar .nav-link:hover {
+            background-color: #1e7e34;
+            border-radius: 5px;
+        }
+        .container {
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -40,10 +93,42 @@ if (!isset($_SESSION['vendor_username'])) {
     </nav>
 
     <div class="container">
-        <h1>Your Profile</h1>
-        <p>Username: <?php echo htmlspecialchars($_SESSION['vendor_username']); ?></p>
-        <!-- Add more profile details here -->
-        <a href="edit_profile.php" class="btn btn-primary">Edit Profile</a>
+        <h2>Your Profile</h2>
+        
+        <?php if (isset($_GET['update']) && $_GET['update'] == 'success'): ?>
+            <div class="alert alert-success" role="alert">
+                Your profile has been successfully updated!
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="">
+        <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($vendors['email']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="business_name" class="form-label">Business Name</label>
+                <input type="text" class="form-control" id="business_name" name="business_name" value="<?php echo htmlspecialchars($vendors['business_name']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" required><?php echo htmlspecialchars($vendors['description']); ?></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="subscription_tier" class="form-label">Subscription Tier</label>
+                <select class="form-select" id="subscription_tier" name="subscription_tier" required>
+                    <option value="Basic" <?php echo ($vendors['subscription_tier'] == 'Basic') ? 'selected' : ''; ?>>Basic</option>
+                    <option value="Premium" <?php echo ($vendors['subscription_tier'] == 'Premium') ? 'selected' : ''; ?>>Premium</option>
+                    <option value="Enterprise" <?php echo ($vendors['subscription_tier'] == 'Enterprise') ? 'selected' : ''; ?>>Enterprise</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact Number</label>
+                <input type="text" class="form-control" id="contact" name="contact" value="<?php echo htmlspecialchars($vendors['contact']); ?>" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+            <a href="vendors_dashboard.php" class="btn btn-secondary">Back</a>
+        </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
