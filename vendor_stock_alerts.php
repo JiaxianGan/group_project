@@ -1,10 +1,24 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['vendor_username'])) {
+include 'db_connect.php';
+if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
+$vendor_id = isset($_SESSION['vendor_id']) ? $_SESSION['vendor_id'] : 1;
+
+
+$query = "SELECT name, stock_quantity FROM products WHERE vendor_id = ?";
+$stmt = $conn->prepare($query);
+
+if ($stmt === false) {
+    die("Error preparing statement: " . $conn->error);
+}
+
+$stmt->bind_param("s", $vendor_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$products = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +29,28 @@ if (!isset($_SESSION['vendor_username'])) {
     <title>Stock Alerts</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Add your custom styles here */
+        body {
+            background-image: url('dashboard_background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .navbar {
+            background-color: #155724 !important;
+        }
+        .navbar .nav-link {
+            color: white !important;
+        }
+        .navbar .nav-link:hover {
+            background-color: #1e7e34;
+            border-radius: 5px;
+        }
+        .container {
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -39,7 +74,7 @@ if (!isset($_SESSION['vendor_username'])) {
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container mt-5">
         <h1>Stock Alerts</h1>
         <p>Get notified when your stock is low.</p>
         <table class="table mt-3">
@@ -51,20 +86,22 @@ if (!isset($_SESSION['vendor_username'])) {
                 </tr>
             </thead>
             <tbody>
-                <!-- Sample data, replace with dynamic data from your database -->
-                <tr>
-                    <td>Product 1</td>
-                    <td>5</td>
-                    <td><span class="text-danger">Low Stock</span></td>
-                </tr>
-                <tr>
-                    <td>Product 2</td>
-                    <td>20</td>
-                    <td><span class="text-success">Sufficient Stock</span></td>
-                </tr>
-                <!-- Repeat for other products -->
+                <?php foreach ($products as $product): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($product['name']); ?></td>
+                        <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
+                        <td>
+                            <?php if ($product['stock_quantity'] < 10): // Set your low stock threshold ?>
+                                <span class="text-danger">Low Stock</span>
+                            <?php else: ?>
+                                <span class="text-success">Sufficient Stock</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
+        <a href="vendors_dashboard.php" class="btn btn-secondary">Back</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
