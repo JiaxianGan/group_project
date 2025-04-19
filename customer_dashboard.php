@@ -8,7 +8,8 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'customer') {
     exit();
 }
 
-$cart = $_SESSION['cart'] ?? [];
+// Fetch cart from session if available
+$cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
 ?>
 
 <!DOCTYPE html>
@@ -139,7 +140,7 @@ $cart = $_SESSION['cart'] ?? [];
                     <button type="submit"><i class="bi bi-search"></i></button>
                 </form>
 
-                <a href="customer_cart.php" class="text-white position-relative ms-3" title="Shopping Cart">
+                <a href="customer_add_to_cart.php" class="text-white position-relative ms-3" title="Shopping Cart">
                     <i class="bi bi-cart3 fs-4"></i>
                     <?php if (!empty($cart)): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -151,8 +152,9 @@ $cart = $_SESSION['cart'] ?? [];
 
             <ul class="navbar-nav ms-3">
                 <li class="nav-item"><a class="nav-link" href="customer_dashboard.php"><i class="bi bi-house-door"></i> Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="product_list.php"><i class="bi bi-box-seam"></i> Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="order_history.php"><i class="bi bi-bag-check"></i> My Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_product_list.php"><i class="bi bi-box-seam"></i> Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_add_to_cart.php"><i class="bi bi-cart4"></i> My Cart</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_order_history.php"><i class="bi bi-bag-check"></i> My Orders</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="bi bi-gear"></i> Settings
@@ -179,7 +181,7 @@ $cart = $_SESSION['cart'] ?? [];
             <h1>Fresh from the <span class="highlight">Farm</span> to Your Home</h1>
             <p>Support local farmers and enjoy fresh, organic produce today.</p>
             <div class="hero-buttons mt-3">
-                <a href="product_list.php" class="btn shop-btn"><i class="bi bi-cart4"></i> Shop Now</a>
+                <a href="customer_product_list.php" class="btn shop-btn"><i class="bi bi-cart4"></i> Shop Now</a>
                 <a href="about.php" class="btn info-btn"><i class="bi bi-info-circle"></i> Learn More</a>
             </div>
         </div>
@@ -195,65 +197,23 @@ $cart = $_SESSION['cart'] ?? [];
             <?php
             $featured = $conn->query("SELECT * FROM products ORDER BY RAND() LIMIT 3");
             while ($prod = $featured->fetch_assoc()):
+                $image = !empty($prod['image_path']) ? $prod['image_path'] : 'default.jpg';
+                $name = !empty($prod['product_name']) ? $prod['product_name'] : 'Unnamed Product';
+                $price = isset($prod['price']) ? number_format($prod['price'], 2) : '0.00';
+                $id = isset($prod['id']) ? $prod['id'] : '#';
             ?>
             <div class="col-md-4 mb-3">
                 <div class="card h-100 shadow-sm">
-                    <img src="<?= $prod['image_path'] ?? 'default.jpg'; ?>" class="card-img-top" alt="<?= $prod['product_name']; ?>">
+                    <img src="<?= htmlspecialchars($image); ?>" class="card-img-top" alt="<?= htmlspecialchars($name); ?>">
                     <div class="card-body">
-                        <h5 class="card-title"><?= $prod['product_name']; ?></h5>
-                        <p class="card-text">RM <?= number_format($prod['price'], 2); ?></p>
-                        <a href="product_details.php?id=<?= $prod['id']; ?>" class="btn btn-success btn-sm">View</a>
+                        <h5 class="card-title"><?= htmlspecialchars($name); ?></h5>
+                        <p class="card-text">RM <?= $price; ?></p>
+                        <a href="product_details.php?id=<?= htmlspecialchars($id); ?>" class="btn btn-success btn-sm">View</a>
                     </div>
                 </div>
             </div>
             <?php endwhile; ?>
         </div>
-    </section>
-
-    <!-- Cart Preview -->
-    <section>
-        <h3 class="section-title"><i class="bi bi-cart4"></i> Your Cart</h3>
-        <?php if (empty($cart)): ?>
-            <div class="alert alert-warning">Your cart is empty. Start shopping now!</div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover bg-white shadow-sm">
-                    <thead class="table-success">
-                        <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Price (RM)</th>
-                            <th>Total (RM)</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $total = 0;
-                        foreach ($cart as $product_id => $qty):
-                            $res = $conn->query("SELECT * FROM products WHERE id = $product_id");
-                            $product = $res->fetch_assoc();
-                            $subtotal = $product['price'] * $qty;
-                            $total += $subtotal;
-                        ?>
-                        <tr>
-                            <td><?= $product['product_name']; ?></td>
-                            <td><?= $qty; ?></td>
-                            <td><?= number_format($product['price'], 2); ?></td>
-                            <td><?= number_format($subtotal, 2); ?></td>
-                            <td><a href="remove_from_cart.php?id=<?= $product_id; ?>" class="btn btn-sm btn-danger">Remove</a></td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <tr>
-                            <td colspan="3" class="text-end fw-bold">Grand Total</td>
-                            <td colspan="2" class="fw-bold">RM <?= number_format($total, 2); ?></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <a href="customer_cart.php" class="btn btn-primary me-2"><i class="bi bi-basket"></i> Go to Cart</a>
-            <a href="customer_checkout.php" class="btn btn-success"><i class="bi bi-credit-card"></i> Proceed to Checkout</a>
-        <?php endif; ?>
     </section>
 </div>
 
