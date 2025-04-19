@@ -1,14 +1,11 @@
 <?php
 session_start();
 include 'db_connect.php';
-
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
-
 $successMsg = $errorMsg = "";
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = isset($_POST['name']) ? $_POST['name'] : '';
     $vendorId = isset($_POST['vendor_id']) ? $_POST['vendor_id'] : '';
@@ -18,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stockQuantity = isset($_POST['stock_quantity']) ? $_POST['stock_quantity'] : 0;
     $packaging = isset($_POST['packaging']) ? $_POST['packaging'] : '';
     $imagePath = "";
-
     if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['product_image']['tmp_name'];
         $fileName = $_FILES['product_image']['name'];
@@ -26,20 +22,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $newFileName = uniqid() . '.' . $fileExtension;
         $uploadDir = 'uploads/';
         $dest_path = $uploadDir . $newFileName;
-
         if (move_uploaded_file($fileTmpPath, $dest_path)) {
             $imagePath = $dest_path;
         } else {
             $errorMsg = "Error uploading the image.";
         }
     }
-
     if (empty($errorMsg)) {
         $sql = "INSERT INTO products (vendor_id, name, category, description, price, stock_quantity, packaging, image_url, product_image)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
         $stmt = $conn->prepare($sql);
-
         if ($stmt) {
             $stmt->bind_param("isssdisss", $vendorId, $name, $category, $description, $price, $stockQuantity, $packaging, $imagePath, $imagePath);
 
@@ -53,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-
 $vendors = $conn->query("SELECT vendor_id, vendor_name FROM vendors");
 ?>
 
@@ -70,7 +61,6 @@ $vendors = $conn->query("SELECT vendor_id, vendor_name FROM vendors");
             background-position: center;
             background-attachment: fixed;
         }
-
         .container {
             margin-top: 80px;
             background-color: white;
@@ -78,34 +68,28 @@ $vendors = $conn->query("SELECT vendor_id, vendor_name FROM vendors");
             border-radius: 10px;
             max-width: 800px;
         }
-
         .btn-success {
             background-color: #155724;
             border: none;
         }
-
         .btn-success:hover {
             background-color: #1e7e34;
         }
     </style>
 </head>
 <body>
-
 <div class="container shadow">
     <h2 class="mb-4 fw-bold text-success">Add New Product</h2>
-
     <?php if ($successMsg): ?>
         <div class="alert alert-success"><?php echo $successMsg; ?></div>
     <?php elseif ($errorMsg): ?>
         <div class="alert alert-danger"><?php echo $errorMsg; ?></div>
     <?php endif; ?>
-
     <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label class="form-label">Product Name</label>
             <input type="text" name="name" class="form-control" required>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Vendor</label>
             <select name="vendor_id" class="form-select" required>
@@ -121,7 +105,6 @@ $vendors = $conn->query("SELECT vendor_id, vendor_name FROM vendors");
                 ?>
             </select>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Category</label>
             <select name="category" class="form-select" required>
@@ -134,36 +117,29 @@ $vendors = $conn->query("SELECT vendor_id, vendor_name FROM vendors");
                 <option value="miscellaneous">Miscellaneous</option>
             </select>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Description</label>
             <textarea name="description" class="form-control" rows="3"></textarea>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Price (RM)</label>
             <input type="number" step="0.01" name="price" class="form-control" required>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Stock Quantity</label>
             <input type="number" name="stock_quantity" class="form-control" required>
         </div>
-
         <div class="mb-3">
             <label class="form-label">Packaging</label>
             <input type="text" name="packaging" class="form-control">
         </div>
-
         <div class="mb-3">
             <label class="form-label">Upload Image</label>
             <input type="file" name="product_image" class="form-control" accept="image/*">
         </div>
-
         <button type="submit" class="btn btn-success">Add Product</button>
-        <a href="staff_vendors.php" class="btn btn-secondary">Back</a>
+        <a href="staff_products.php" class="btn btn-secondary">Back</a>
     </form>
 </div>
-
 </body>
 </html>

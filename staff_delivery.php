@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
@@ -22,38 +21,30 @@ if (!isset($_SESSION['username'])) {
             background-position: center;
             background-attachment: fixed;
         }
-
         .navbar {
             background-color: #155724 !important;
         }
-
         .navbar .nav-link {
             color: white !important;
             font-weight: 500;
         }
-
         .navbar .nav-link:hover {
             background-color: #1e7e34;
             border-radius: 5px;
         }
-
         .table thead {
             background-color: #155724;
             color: white;
         }
-
         .container {
             margin-top: 50px;
         }
-
         .status-badge {
             font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#"><i class="fas fa-tractor me-2"></i>AgriMarket</a>
@@ -64,20 +55,16 @@ if (!isset($_SESSION['username'])) {
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="staff_dashboard.php"><i class="fas fa-home me-1"></i>Staff Panel</a></li>
                     <li class="nav-item"><a class="nav-link" href="staff_delivery.php"><i class="fas fa-truck me-1"></i>Delivery</a></li>
-                    <li class="nav-item"><a class="nav-link" href="staff_vendors.php"><i class="fas fa-warehouse me-1"></i>Vendors</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_products.php"><i class="fas fa-warehouse me-1"></i>Products</a></li>
                     <li class="nav-item"><a class="nav-link" href="staff_reports.php"><i class="fas fa-chart-line me-1"></i>Reports</a></li>
-                    <li class="nav-item"><a class="nav-link" href="settings.php"><i class="fas fa-cog me-1"></i>Settings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_profile.php"><i class="fas fa-cog me-1"></i>Profile</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-
-    <!-- Delivery Management Table -->
     <div class="container">
         <div class="bg-white p-5 rounded-4 shadow">
             <h3 class="mb-4"><i class="fas fa-truck me-2"></i>Delivery Management</h3>
-
-            <!-- Delivery Table -->
             <table class="table table-hover table-bordered align-middle">
                 <thead>
                     <tr>
@@ -93,8 +80,6 @@ if (!isset($_SESSION['username'])) {
             </table>
         </div>
     </div>
-
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
