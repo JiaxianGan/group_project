@@ -12,6 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
     $product_id = intval($_POST['product_id']);
     $quantity = intval($_POST['quantity']);
 
+    if ($quantity <= 0) {
+        $_SESSION['error'] = 'Invalid quantity selected.';
+        header("Location: customer_product_list.php?msg=invalid_quantity");
+        exit();
+    }
+
     // Check if item already in cart
     $check_sql = "SELECT * FROM cart WHERE user_id = ? AND product_id = ?";
     $stmt = $conn->prepare($check_sql);
@@ -25,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
         $stmt = $conn->prepare($update_sql);
         $stmt->bind_param("iii", $quantity, $user_id, $product_id);
     } else {
-        // Insert new item to cart if not already in cart
+        // Insert new item to cart
         $insert_sql = "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)";
         $stmt = $conn->prepare($insert_sql);
         $stmt->bind_param("iii", $user_id, $product_id, $quantity);
@@ -33,12 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
 
     if ($stmt->execute()) {
         $_SESSION['message'] = 'Item added to cart successfully!';
-        header("Location: customer_products.php?msg=added");
+        header("Location: customer_product_list.php?msg=added");
         exit();
     } else {
-        $_SESSION['error'] = 'There was an error adding the item to your cart. Please try again.';
-        header("Location: customer_products.php?msg=error");
+        $_SESSION['error'] = 'Error adding item to cart. Please try again.';
+        header("Location: customer_product_list.php?msg=error");
         exit();
     }
+
+    $stmt->close();
+    $conn->close();
+} else {
+    // If accessed directly without POST
+    header("Location: customer_product_list.php");
+    exit();
 }
 ?>

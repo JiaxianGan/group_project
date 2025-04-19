@@ -139,7 +139,7 @@ $cart = $_SESSION['cart'] ?? [];
                     <button type="submit"><i class="bi bi-search"></i></button>
                 </form>
 
-                <a href="cart.php" class="text-white position-relative ms-3" title="Shopping Cart">
+                <a href="customer_cart.php" class="text-white position-relative ms-3" title="Shopping Cart">
                     <i class="bi bi-cart3 fs-4"></i>
                     <?php if (!empty($cart)): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -251,8 +251,8 @@ $cart = $_SESSION['cart'] ?? [];
                     </tbody>
                 </table>
             </div>
-            <a href="cart.php" class="btn btn-primary me-2"><i class="bi bi-basket"></i> Go to Cart</a>
-            <a href="checkout.php" class="btn btn-success"><i class="bi bi-credit-card"></i> Proceed to Checkout</a>
+            <a href="customer_cart.php" class="btn btn-primary me-2"><i class="bi bi-basket"></i> Go to Cart</a>
+            <a href="customer_checkout.php" class="btn btn-success"><i class="bi bi-credit-card"></i> Proceed to Checkout</a>
         <?php endif; ?>
     </section>
 </div>
