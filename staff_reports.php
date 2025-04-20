@@ -5,25 +5,6 @@ if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
-
-$filter = $_GET['filter'] ?? 'daily';
-$type = $_GET['type'] ?? 'sales';
-
-switch ($filter) {
-    case 'weekly':
-        $group_by = "YEARWEEK(o.order_date)";
-        $label = "Week";
-        break;
-    case 'monthly':
-        $group_by = "DATE_FORMAT(o.order_date, '%Y-%m')";
-        $label = "Month";
-        break;
-    default:
-        $group_by = "DATE(o.order_date)";
-        $label = "Date";
-        break;
-}
-
 function getStoredReports($conn, $type) {
     $sql = "SELECT * FROM reports WHERE report_type = ? ORDER BY generated_at DESC LIMIT 5";
     $stmt = $conn->prepare($sql);
@@ -31,8 +12,28 @@ function getStoredReports($conn, $type) {
     $stmt->execute();
     return $stmt->get_result();
 }
+$pieData = [];
+$pieQuery = "
+    SELECT latest_status.status, COUNT(*) AS total_orders
+    FROM (
+        SELECT ot.order_id, ot.status
+        FROM order_tracking ot
+        INNER JOIN (
+            SELECT order_id, MAX(updated_at) AS latest_update
+            FROM order_tracking
+            GROUP BY order_id
+        ) latest
+        ON ot.order_id = latest.order_id AND ot.updated_at = latest.latest_update
+    ) AS latest_status
+    GROUP BY latest_status.status
+";
+$pieResult = $conn->query($pieQuery);
+if ($pieResult && $pieResult->num_rows > 0) {
+    while ($row = $pieResult->fetch_assoc()) {
+        $pieData[] = $row;
+    }
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,6 +41,7 @@ function getStoredReports($conn, $type) {
     <title>AgriMarket - Reports</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background-image: url('reports_background.jpg');
@@ -94,86 +96,27 @@ function getStoredReports($conn, $type) {
         </div>
     </div>
 </nav>
-
 <div class="container">
     <div class="bg-white rounded-4 shadow p-5 mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold"><i class="fas fa-chart-line me-2"></i>Sales Report (<?= ucfirst($filter) ?>)</h3>
-            <form method="get" class="d-flex gap-2">
-                <input type="hidden" name="type" value="sales">
-                <select name="filter" class="form-select" onchange="this.form.submit()">
-                    <option value="daily" <?= $filter === 'daily' ? 'selected' : '' ?>>Daily</option>
-                    <option value="weekly" <?= $filter === 'weekly' ? 'selected' : '' ?>>Weekly</option>
-                    <option value="monthly" <?= $filter === 'monthly' ? 'selected' : '' ?>>Monthly</option>
-                </select>
-            </form>
-        </div>
-
-        <div class="table-responsive mb-5">
-            <table class="table table-bordered table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th><?= $label ?></th>
-                        <th>Total Orders</th>
-                        <th>Total Revenue (RM)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $reportQuery = "
-                        SELECT $group_by AS grouped_date, COUNT(*) AS order_count, SUM(total_amount) AS revenue 
-                        FROM orders o 
-                        GROUP BY grouped_date 
-                        ORDER BY grouped_date DESC
-                    ";
-                    $reportResult = $conn->query($reportQuery);
-                    if ($reportResult && $reportResult->num_rows > 0) {
-                        while ($row = $reportResult->fetch_assoc()) {
-                            echo "<tr>
-                                    <td>" . htmlspecialchars($row['grouped_date']) . "</td>
-                                    <td>" . (int)$row['order_count'] . "</td>
-                                    <td>" . number_format($row['revenue'], 2) . "</td>
-                                </tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='3' class='text-danger text-center'>No report data found.</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-
-        <h4 class="fw-bold mb-3"><i class="fas fa-database me-2"></i>Stored Reports</h4>
-        <form method="get" class="mb-3">
-            <input type="hidden" name="filter" value="<?= $filter ?>">
-            <select name="type" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
-                <option value="sales" <?= $type === 'sales' ? 'selected' : '' ?>>Sales</option>
-                <option value="most_searched" <?= $type === 'most_searched' ? 'selected' : '' ?>>Most Searched</option>
-                <option value="most_visited" <?= $type === 'most_visited' ? 'selected' : '' ?>>Most Visited</option>
-                <option value="popular_orders" <?= $type === 'popular_orders' ? 'selected' : '' ?>>Popular Orders</option>
-            </select>
-        </form>
-
-        <?php
-        $storedReports = getStoredReports($conn, $type);
-        if ($storedReports && $storedReports->num_rows > 0) {
-            while ($report = $storedReports->fetch_assoc()) {
-                echo "<div class='card mb-3'>
-                        <div class='card-header bg-success text-white'>
-                            " . ucfirst(str_replace('_', ' ', $report['report_type'])) . " | Generated At: " . $report['generated_at'] . "
-                        </div>
-                        <div class='card-body'>
-                            <pre class='mb-0'>" . htmlspecialchars($report['data']) . "</pre>
-                        </div>
-                    </div>";
-            }
-        } else {
-            echo "<div class='alert alert-info'>No stored reports available for this type.</div>";
-        }
-        ?>
+        <h4 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2"></i>Current Delivery Status</h4>
+        <canvas id="deliveryStatusPie" class="mb-5" height="100"></canvas>
     </div>
 </div>
-
+<script>
+    const pieCtx = document.getElementById('deliveryStatusPie').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: <?= json_encode(array_column($pieData, 'status')) ?>,
+            datasets: [{
+                label: 'Orders',
+                data: <?= json_encode(array_column($pieData, 'total_orders')) ?>,
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#007bff'],
+                borderWidth: 1
+            }]
+        }
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

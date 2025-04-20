@@ -1,12 +1,10 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,12 +141,10 @@ if (!isset($_SESSION['username'])) {
             </div>
         </div>
     </nav>
-
-    <!-- Dashboard Hero Section -->
     <div class="container">
         <section class="hero">
             <div class="hero-text">
-                <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+                <h2>Welcome, Staff <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
                 <p>Your mission is to ensure smooth operation of AgriMarket, from product management to deliveries.</p>
                 <h1>The place where <span class="highlight">Fresh Produce</span> meets quality service</h1>
                 <p>AgriMarket brings the best produce from the farm directly to our customers. Let's make the market thrive!</p>
@@ -162,7 +158,6 @@ if (!isset($_SESSION['username'])) {
             </div>
         </section>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

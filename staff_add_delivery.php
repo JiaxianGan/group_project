@@ -5,26 +5,19 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 include 'db_connect.php';
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $order_id = $_POST['order_id'];
     $status = $_POST['status'];
-
-    // Add delivery entry to order_tracking
     $stmt = $conn->prepare("INSERT INTO order_tracking (order_id, status) VALUES (?, ?)");
     $stmt->bind_param("is", $order_id, $status);
     $stmt->execute();
-
-    // Update orders table
     $update_stmt = $conn->prepare("UPDATE orders SET status = ? WHERE order_id = ?");
     $update_stmt->bind_param("si", $status, $order_id);
     $update_stmt->execute();
-
     header("Location: staff_delivery.php");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

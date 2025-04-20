@@ -2,17 +2,13 @@
 session_start();
 include 'db_connect.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
-
 $username = $_SESSION['username'];
-
 $currentPage = 'staff_products.php';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,7 +60,6 @@ $currentPage = 'staff_products.php';
     </style>
 </head>
 <body>
-
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand fw-bold" href="#"><i class="fas fa-tractor me-2"></i>AgriMarket</a>
@@ -92,7 +87,6 @@ $currentPage = 'staff_products.php';
         </div>
     </div>
 </nav>
-
 <div class="container">
     <div class="bg-white rounded-4 shadow p-5">
         <h3 class="fw-bold mb-4"><i class="fas fa-boxes me-2"></i>Product Inventory</h3>
@@ -148,7 +142,6 @@ $currentPage = 'staff_products.php';
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

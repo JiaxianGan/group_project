@@ -1,45 +1,35 @@
 <?php
 session_start();
 include 'db_connect.php';
-
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
-
 $username = $_SESSION['username'];
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
 if ($product_id <= 0) {
     $_SESSION['message'] = "Invalid product ID.";
     header("Location: staff_products.php");
     exit();
 }
-
 $query = "SELECT * FROM products WHERE product_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
 $product = $stmt->get_result()->fetch_assoc();
-
 if (!$product) {
     $_SESSION['message'] = "Product not found.";
     header("Location: staff_products.php");
     exit();
 }
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Process form submission for updating product
     $name = $_POST['name'];
     $category = $_POST['category'];
     $price = $_POST['price'];
     $stock_quantity = $_POST['stock_quantity'];
-
-    // Update the product details
     $updateQuery = "UPDATE products SET name = ?, category = ?, price = ?, stock_quantity = ? WHERE product_id = ?";
     $stmt = $conn->prepare($updateQuery);
     $stmt->bind_param("ssdii", $name, $category, $price, $stock_quantity, $product_id);
-
     if ($stmt->execute()) {
         $_SESSION['message'] = "Product updated successfully.";
         header("Location: staff_products.php");
@@ -49,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-
 <div class="container mt-5">
     <h3>Edit Product</h3>
     <form method="POST">
@@ -82,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a href="staff_products.php" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

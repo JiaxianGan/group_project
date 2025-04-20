@@ -1,12 +1,10 @@
 <?php
 session_start();
 include 'db_connect.php';
-
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
-
 $username_session = $_SESSION['username'];
 $query = "SELECT user_id as staff_id, username, email FROM users WHERE username = ?";
 $stmt = $conn->prepare($query);
@@ -14,7 +12,6 @@ if (!$stmt) {
     die("Prepare failed: " . $conn->error);
 }
 $stmt->bind_param("s", $username_session);
-
 if (!$stmt->execute()) {
     die("Execute failed: " . $stmt->error);
 }
@@ -24,37 +21,29 @@ if (!$staff) {
     die("No staff found with username: " . $username_session);
 }
 $staff_id = $staff['staff_id'];
-
 $update_success = false;
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['logout'])) {
-        // Logout functionality
         session_unset();
         session_destroy();
         header("Location: auth.php");
         exit();
     }
-
     $new_username = $_POST['username'];
-
     $update_query = "UPDATE users SET username=? WHERE user_id=?";
     $update_stmt = $conn->prepare($update_query);
     if (!$update_stmt) {
         die("Prepare failed: " . $conn->error);
     }
     $update_stmt->bind_param("si", $new_username, $staff_id);
-
     if ($update_stmt->execute()) {
         $_SESSION['username'] = $new_username;
         $update_success = true;
     }
-
     header("Location: staff_profile.php?update=success");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,7 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <a href="staff_dashboard.php" class="btn btn-secondary btn-lg">Back</a>
             </div>
         </form>
-
         <form method="POST" action="" class="mt-4">
             <button type="submit" name="logout" class="btn btn-danger btn-lg btn-block">Logout</button>
         </form>

@@ -5,10 +5,8 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 include 'db_connect.php';
-
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['order_id'])) {
     $order_id = $_GET['order_id'];
-
     $stmt = $conn->prepare("SELECT status FROM order_tracking WHERE order_id = ? ORDER BY updated_at DESC LIMIT 1");
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
@@ -18,22 +16,16 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['order_id'])) {
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
     $order_id = $_POST['order_id'];
     $new_status = $_POST['status'];
-
-    // Insert new tracking status
     $stmt = $conn->prepare("INSERT INTO order_tracking (order_id, status) VALUES (?, ?)");
     $stmt->bind_param("is", $order_id, $new_status);
     $stmt->execute();
-
-    // Update orders table
     $update_stmt = $conn->prepare("UPDATE orders SET status = ? WHERE order_id = ?");
     $update_stmt->bind_param("si", $new_status, $order_id);
     $update_stmt->execute();
-
     header("Location: staff_delivery.php");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

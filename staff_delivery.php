@@ -4,33 +4,25 @@ if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
-
 include 'db_connect.php';
-
-// Handle Add/Update Status
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['add_status'])) {
         $order_id = $_POST['order_id'];
         $status = $_POST['status'];
-
         $stmt = $conn->prepare("INSERT INTO order_tracking (order_id, status) VALUES (?, ?)");
         $stmt->bind_param("is", $order_id, $status);
         $stmt->execute();
-
         $update_stmt = $conn->prepare("UPDATE orders SET status = ? WHERE order_id = ?");
         $update_stmt->bind_param("si", $status, $order_id);
         $update_stmt->execute();
     }
-
     if (isset($_POST['edit_status'])) {
         $tracking_id = $_POST['tracking_id'];
         $status = $_POST['status'];
-
         $stmt = $conn->prepare("UPDATE order_tracking SET status = ? WHERE tracking_id = ?");
         $stmt->bind_param("si", $status, $tracking_id);
         $stmt->execute();
     }
-
     if (isset($_POST['delete_status'])) {
         $tracking_id = $_POST['tracking_id'];
         $stmt = $conn->prepare("DELETE FROM order_tracking WHERE tracking_id = ?");
@@ -38,8 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
     }
 }
-
-// Fetch orders with customer & product details
 $sql = "SELECT o.order_id, u.username AS customer_name, u.address AS delivery_address, 
                oi.product_id, oi.quantity, p.name AS product_name
         FROM orders o
@@ -48,22 +38,15 @@ $sql = "SELECT o.order_id, u.username AS customer_name, u.address AS delivery_ad
         JOIN products p ON oi.product_id = p.product_id
         WHERE o.status = 'Pending'";
 $result = $conn->query($sql);
-
-// Fetch latest status per order
 $status_sql = "SELECT order_id, status FROM (
                     SELECT * FROM order_tracking ORDER BY updated_at DESC
                ) as latest GROUP BY order_id";
 $status_result = $conn->query($status_sql);
-
 $order_statuses = [];
 while ($row = $status_result->fetch_assoc()) {
     $order_statuses[$row['order_id']] = $row['status'];
 }
-
-// Fetch all tracking records
 $trackings = $conn->query("SELECT * FROM order_tracking ORDER BY updated_at DESC");
-
-// Get edit id if any
 $edit_id = isset($_GET['edit']) ? intval($_GET['edit']) : null;
 $edit_data = null;
 if ($edit_id) {
@@ -73,7 +56,6 @@ if ($edit_id) {
     $edit_data = $stmt->get_result()->fetch_assoc();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,7 +103,6 @@ if ($edit_id) {
         </div>
     </div>
 </nav>
-
 <div class="container mt-5 bg-white p-5 rounded-4 shadow">
     <hr class="my-4">
     <h3><i class="fas fa-list me-2"></i>All Delivery Status Records</h3>
@@ -150,9 +131,10 @@ if ($edit_id) {
                             <td><?= $t['order_id'] ?></td>
                             <td>
                                 <select name="status" class="form-select form-select-sm" required>
+                                    <option value="delivering" <?= $t['status'] == 'delivering' ? 'selected' : '' ?>>Delivering</option>
                                     <option value="delivered" <?= $t['status'] == 'delivered' ? 'selected' : '' ?>>Delivered</option>
-                                    <option value="failed" <?= $t['status'] == 'failed' ? 'selected' : '' ?>>Failed</option>
                                     <option value="delayed" <?= $t['status'] == 'delayed' ? 'selected' : '' ?>>Delayed</option>
+                                    <option value="failed" <?= $t['status'] == 'failed' ? 'selected' : '' ?>>Failed</option>
                                 </select>
                             </td>
                             <td><?= $t['updated_at'] ?></td>
@@ -184,7 +166,6 @@ if ($edit_id) {
         </tbody>
     </table>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
