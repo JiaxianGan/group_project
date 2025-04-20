@@ -8,15 +8,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 }
 
 $customer_id = $_SESSION['user_id'];
-$items = $_POST['items'] ?? [];
+$items = $_POST['items'] ?? []; // Adjust the way items are passed or stored in session
 $total_amount = $_POST['total_amount'] ?? 0;
-$datetime = $_POST['datetime'] ?? date('Y-m-d H:i:s');
+$datetime = date('Y-m-d H:i:s');
 
 // Clear cart after payment
 $clear_cart = $conn->prepare("DELETE FROM cart WHERE customer_id = ?");
 $clear_cart->bind_param("i", $customer_id);
 $clear_cart->execute();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,7 +58,7 @@ $clear_cart->execute();
         </ul>
 
         <div class="text-center">
-            <a href="order_history.php" class="btn btn-primary mt-3 me-2">📄 View Order History</a>
+            <a href="customer_order_history.php" class="btn btn-primary mt-3 me-2">📄 View Order History</a>
             <a href="customer_dashboard.php" class="btn btn-secondary mt-3">🏠 Back to Dashboard</a>
         </div>
     </div>

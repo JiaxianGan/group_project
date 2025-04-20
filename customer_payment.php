@@ -2,76 +2,72 @@
 session_start();
 include 'db_connect.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
     header("Location: auth.php");
     exit();
 }
 
-$customer_id = $_SESSION['user_id'];
-$cart_query = $conn->prepare("
-    SELECT p.name, p.price, c.quantity, (p.price * c.quantity) AS subtotal 
-    FROM cart c 
-    JOIN products p ON c.product_id = p.product_id 
-    WHERE c.customer_id = ?
-");
-$cart_query->bind_param("i", $customer_id);
-$cart_query->execute();
-$cart_result = $cart_query->get_result();
+$cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+$product_details = [];
+$grand_total = 0;
 
-$total_amount = 0;
-$cart_items = [];
-while ($row = $cart_result->fetch_assoc()) {
-    $cart_items[] = $row;
-    $total_amount += $row['subtotal'];
+if (!empty($cart)) {
+    $placeholders = implode(',', array_fill(0, count($cart), '?'));
+    $stmt = $conn->prepare("SELECT * FROM products WHERE product_id IN ($placeholders)");
+    $stmt->bind_param(str_repeat('i', count($cart)), ...array_keys($cart));
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $product_details[$row['product_id']] = $row;
+        $grand_total += $row['price'] * $cart[$row['product_id']];
+    }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment Gateway | AgriMarket</title>
+    <title>Payment | AgriMarket</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .payment-box {
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-        }
+        body { background-color: #f8f9fa; padding: 30px; }
+        .payment-box { background: #fff; border-radius: 10px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <div class="payment-box mx-auto" style="max-width: 600px;">
-        <h2 class="text-center mb-4"><i class="bi bi-credit-card-2-front-fill"></i> Secure Payment</h2>
-        <h5>Order Summary</h5>
-        <ul class="list-group mb-3">
-            <?php foreach ($cart_items as $item): ?>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <?= htmlspecialchars($item['name']); ?> (RM <?= number_format($item['price'], 2); ?> x <?= $item['quantity']; ?>)
-                    <span>RM <?= number_format($item['subtotal'], 2); ?></span>
-                </li>
-            <?php endforeach; ?>
-            <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
-                Total
-                <span>RM <?= number_format($total_amount, 2); ?></span>
-            </li>
-        </ul>
 
-        <form action="customer_payment_success.php" method="POST">
-            <input type="hidden" name="total_amount" value="<?= $total_amount; ?>">
-            <input type="hidden" name="datetime" value="<?= date('Y-m-d H:i:s'); ?>">
-            <?php foreach ($cart_items as $item): ?>
-                <input type="hidden" name="items[]" 
-                    value="<?= htmlspecialchars($item['name']) . ' | RM ' . number_format($item['price'], 2) . ' x ' . $item['quantity'] . ' = RM ' . number_format($item['subtotal'], 2); ?>">
-            <?php endforeach; ?>
-            <button type="submit" class="btn btn-success w-100 mt-3">Pay Now</button>
-        </form>
+<div class="container">
+    <div class="payment-box">
+        <h2 class="mb-4">Payment Summary</h2>
+
+        <?php if (!empty($product_details)): ?>
+            <p><strong>Total Amount to Pay:</strong> RM <?= number_format($grand_total, 2) ?></p>
+
+            <form action="customer_payment_success.php" method="post">
+                <input type="hidden" name="total_amount" value="<?= $grand_total ?>">
+
+                <div class="mb-3">
+                    <label for="payment_method" class="form-label">Select Payment Method</label>
+                    <select name="payment_method" id="payment_method" class="form-select" required>
+                        <option value="">-- Choose --</option>
+                        <option value="credit_card">Credit / Debit Card</option>
+                        <option value="mobile_banking">Mobile Banking</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="cod">Cash on Delivery</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Confirm & Pay</button>
+                <a href="customer_add_to_cart.php" class="btn btn-secondary ms-2">Back to Cart</a>
+            </form>
+        <?php else: ?>
+            <div class="alert alert-warning">Your cart is empty. Please add products before proceeding to payment.</div>
+            <a href="customer_product_list.php" class="btn btn-primary">Shop Now</a>
+        <?php endif; ?>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

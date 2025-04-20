@@ -12,7 +12,7 @@ $username = $_SESSION['username'];
 
 // Use prepared statement for security
 $stmt = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_datetime DESC");
-$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->bind_param("i", $_SESSION['user_id']);  // Ensure correct user_id is passed
 $stmt->execute();
 $orders = $stmt->get_result();
 ?>
@@ -90,6 +90,7 @@ $orders = $stmt->get_result();
     <?php if ($orders->num_rows > 0): ?>
         <?php while ($row = $orders->fetch_assoc()): ?>
             <?php
+                // Handle order status and corresponding badge
                 $status = strtolower($row['status']);
                 $status_classes = [
                     'pending' => 'badge-pending',

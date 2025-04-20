@@ -39,6 +39,16 @@ if (!empty($cart)) {
 <body>
 
 <div class="container">
+
+<?php if (isset($_SESSION['update_cart_errors'])): ?>
+    <div class="alert alert-warning">
+        <?php foreach ($_SESSION['update_cart_errors'] as $msg): ?>
+            <div><?= htmlspecialchars($msg) ?></div>
+        <?php endforeach; ?>
+    </div>
+    <?php unset($_SESSION['update_cart_errors']); ?>
+<?php endif; ?>
+
     <h2 class="mb-4">Your Shopping Cart</h2>
 
     <?php if (!empty($cart) && !empty($product_details)): ?>
