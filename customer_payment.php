@@ -54,7 +54,6 @@ if (!empty($cart)) {
                         <option value="credit_card">Credit / Debit Card</option>
                         <option value="mobile_banking">Mobile Banking</option>
                         <option value="bank_transfer">Bank Transfer</option>
-                        <option value="cod">Cash on Delivery</option>
                     </select>
                 </div>
 

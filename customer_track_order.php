@@ -2,132 +2,85 @@
 session_start();
 include 'db_connect.php';
 
-// Check if user is logged in and is a customer
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'customer') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
     header("Location: auth.php");
     exit();
 }
 
-$username = $_SESSION['username'];
-
-// Validate order ID
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    die("Invalid order ID.");
-}
-
-$order_id = $_GET['id'];
-
-// Use prepared statement for secure fetching
-$stmt = $conn->prepare("SELECT * FROM orders WHERE order_id = ? AND customer_name = ?");
-$stmt->bind_param("is", $order_id, $username);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    die("Order not found or you don't have permission to view this order.");
-}
-
-$order = $result->fetch_assoc();
-$status = strtolower($order['status']);
+$customer_id = $_SESSION['user_id'];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Track Order - AgriMarket</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | AgriMarket</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color:rgb(248, 248, 248);
+            font-family: 'Segoe UI', sans-serif;
         }
-        .container {
-            margin-top: 60px;
+        .order-card {
+            border-radius: 15px;
+            box-shadow: 0 2px 12px rgba(0, 128, 0, 0.1);
+            background-color: #fff;
+            border: none;
         }
-        .step {
-            text-align: center;
-            position: relative;
-            flex: 1;
+        .order-header {
+            background-color:rgb(93, 203, 118);
+            padding: 10px 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            font-weight: 600;
         }
-        .step i {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .step::before {
-            content: '';
-            position: absolute;
-            top: 12px;
-            left: -50%;
-            width: 100%;
-            height: 4px;
-            background-color: #dee2e6;
-            z-index: -1;
-        }
-        .step:first-child::before {
-            content: none;
-        }
-        .step.active i, .step.active span {
-            color: #0d6efd;
-            font-weight: bold;
-        }
-        .step.active::before {
-            background-color: #0d6efd;
+        .order-footer {
+            background-color:rgb(93, 203, 118);
+            padding: 10px 20px;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h2><i class="bi bi-truck"></i> Track Order #<?= htmlspecialchars($order_id) ?></h2>
-        <a href="customer_order_history.php" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left-circle"></i> Back to Orders
-        </a>
-    </div>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-success"><i class="bi bi-truck"></i> Track Your Orders</h2>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Order Progress</h5>
-            <div class="d-flex justify-content-between">
-                <?php
-                $statuses = ['pending' => 'bi-hourglass-split', 'shipped' => 'bi-truck', 'delivered' => 'bi-box2-check'];
-                $current_step = match($status) {
-                    'delivered' => 3,
-                    'shipped' => 2,
-                    default => 1,
-                };
-                $step_names = ['Pending', 'Shipped', 'Delivered'];
-                $icons = ['bi-hourglass-split', 'bi-truck', 'bi-box2-check'];
-                foreach ($step_names as $i => $name):
-                    $is_active = ($i + 1 <= $current_step);
-                ?>
-                    <div class="step <?= $is_active ? 'active' : '' ?>">
-                        <i class="bi <?= $icons[$i] ?>"></i><br>
-                        <span><?= $name ?></span>
-                    </div>
-                <?php endforeach; ?>
+    <?php
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_datetime DESC");
+    $stmt->bind_param("i", $customer_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0): 
+        while ($row = $result->fetch_assoc()):
+    ?>
+        <div class="card mb-4 order-card">
+            <div class="order-header">
+                🧾 Order #<?= $row['order_id']; ?>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> <span class="text-primary"><?= htmlspecialchars($row['status']); ?></span></p>
+                <p><strong>Date:</strong> <?= $row['order_datetime']; ?></p>
+                <p><strong>Items:</strong> <?= nl2br(htmlspecialchars($row['order_details'])); ?></p>
+                <p><strong>Payment Method:</strong> <?= htmlspecialchars($row['payment_method']); ?></p>
+                <p class="fw-bold">Total Amount: <span class="text-success">RM <?= number_format($row['total_amount'], 2); ?></span></p>
+            </div>
+            <div class="order-footer">
+                <small>Tracking updated in real-time</small>
             </div>
         </div>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">Order Details</h5>
-            <p><strong>Status:</strong> 
-                <span class="badge bg-<?= $status === 'pending' ? 'warning text-dark' : ($status === 'shipped' ? 'info text-dark' : ($status === 'delivered' ? 'primary' : 'secondary')) ?>">
-                    <?= ucfirst($status) ?>
-                </span>
-            </p>
-            <p><strong>Placed on:</strong> <?= htmlspecialchars($order['order_date']) ?></p>
-            <p><strong>Total:</strong> RM <?= number_format($order['total_price'], 2) ?></p>
-            <hr>
-            <p><strong>Shipping Address:</strong> <?= htmlspecialchars($order['shipping_address']) ?? 'N/A' ?></p>
-            <p><strong>Payment Method:</strong> <?= htmlspecialchars($order['payment_method']) ?? 'N/A' ?></p>
+    <?php endwhile; else: ?>
+        <div class="alert alert-warning text-center">
+            You have not made any orders yet.
         </div>
+    <?php endif; ?>
+
+    <div class="text-center mt-4">
+        <a href="customer_dashboard.php" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

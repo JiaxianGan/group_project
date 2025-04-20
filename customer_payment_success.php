@@ -12,10 +12,14 @@ $items = $_POST['items'] ?? []; // Adjust the way items are passed or stored in 
 $total_amount = $_POST['total_amount'] ?? 0;
 $datetime = date('Y-m-d H:i:s');
 
-// Clear cart after payment
+// Clear cart after payment from the database
 $clear_cart = $conn->prepare("DELETE FROM cart WHERE customer_id = ?");
 $clear_cart->bind_param("i", $customer_id);
 $clear_cart->execute();
+
+// Clear session cart data
+unset($_SESSION['cart']); // Remove cart items from the session
+
 ?>
 
 <!DOCTYPE html>

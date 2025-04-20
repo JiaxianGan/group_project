@@ -35,16 +35,6 @@ $product_result = $product_stmt->get_result();
             background-color: #f8f9fa;
             padding-bottom: 80px;
         }
-        .navbar {
-            background-color: #28a745;
-        }
-        .navbar .nav-link {
-            color: white !important;
-        }
-        .navbar .nav-link:hover {
-            background-color: #218838;
-            border-radius: 5px;
-        }
         .product-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -114,42 +104,6 @@ $product_result = $product_stmt->get_result();
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" href="#"><i class="bi bi-shop"></i> AgriMarket</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-3">
-                <li class="nav-item">
-                    <a class="nav-link" href="customer_dashboard.php"><i class="bi bi-house-door"></i> Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="customer_product_list.php"><i class="bi bi-box-seam"></i> Products</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="customer_add_to_cart.php"><i class="bi bi-cart4"></i> My Cart</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="customer_order_history.php"><i class="bi bi-bag-check"></i> My Orders</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-gear"></i> Settings
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="customer_view_profile.php"><i class="bi bi-person"></i> View Profile</a></li>
-                        <li><a class="dropdown-item" href="customer_edit_profile.php"><i class="bi bi-pencil-square"></i> Edit Profile</a></li>
-                        <li><a class="dropdown-item" href="change_password.php"><i class="bi bi-lock"></i> Change Password</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
 
 <div class="container mt-4">
     <h2>Available Products</h2>

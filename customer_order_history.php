@@ -2,144 +2,88 @@
 session_start();
 include 'db_connect.php';
 
-// Check if user is logged in and is a customer
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'customer') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
     header("Location: auth.php");
     exit();
 }
 
-$username = $_SESSION['username'];
-
-// Use prepared statement for security
-$stmt = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_datetime DESC");
-$stmt->bind_param("i", $_SESSION['user_id']);  // Ensure correct user_id is passed
-$stmt->execute();
-$orders = $stmt->get_result();
+$customer_id = $_SESSION['user_id'];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Orders - AgriMarket</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Order History | AgriMarket</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f9f9f9;
+            background-color:rgb(248, 248, 248);
+            font-family: 'Segoe UI', sans-serif;
         }
-        .container {
-            margin-top: 60px;
-        }
-        h2 {
-            color: #155724;
-            font-weight: bold;
-        }
-        .badge-status {
-            padding: 5px 10px;
-            font-size: 0.9rem;
-        }
-        .badge-pending {
-            background-color: #ffc107;
-            color: #333;
-        }
-        .badge-paid {
-            background-color: #28a745;
-        }
-        .badge-shipped {
-            background-color: #17a2b8;
-        }
-        .badge-delivered {
-            background-color: #007bff;
-        }
-        .badge-cancelled {
-            background-color: #dc3545;
-        }
-        .badge-info {
-            background-color: #6c757d;
-        }
-        .order-status-step {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        .order-card {
+            border-radius: 15px;
+            box-shadow: 0 2px 12px rgba(0, 128, 0, 0.1);
             background-color: #fff;
+            border: none;
         }
-        .order-status-step .step {
-            text-align: center;
+        .order-header {
+            background-color:rgb(93, 203, 118);
+            padding: 10px 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            font-weight: 600;
         }
-        .order-status-step .step i {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .order-status-step .step.active {
-            color: #007bff;
+        .order-footer {
+            background-color:rgb(93, 203, 118);
+            padding: 10px 20px;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-bag-check"></i> My Order History</h2>
-        <a href="customer_dashboard.php" class="btn btn-outline-success"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
-    </div>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-success"><i class="bi bi-bag-check-fill"></i> My Order History</h2>
 
-    <?php if ($orders->num_rows > 0): ?>
-        <?php while ($row = $orders->fetch_assoc()): ?>
-            <?php
-                // Handle order status and corresponding badge
-                $status = strtolower($row['status']);
-                $status_classes = [
-                    'pending' => 'badge-pending',
-                    'paid' => 'badge-paid',
-                    'shipped' => 'badge-shipped',
-                    'delivered' => 'badge-delivered',
-                    'cancelled' => 'badge-cancelled',
-                ];
-                $badgeClass = $status_classes[$status] ?? 'badge-info';
-            ?>
+    <?php
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_datetime DESC");
+    $stmt->bind_param("i", $customer_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        Order #<?= $row['order_id'] ?> - <?= date('d M Y, H:i', strtotime($row['order_datetime'])) ?>
-                    </h5>
-                    <p>Status: <span class="badge <?= $badgeClass ?> badge-status text-uppercase"><?= ucfirst($status) ?></span></p>
-                    <p>Total: RM <?= number_format($row['total_amount'], 2) ?></p>
-
-                    <!-- Order Status Stepper -->
-                    <div class="order-status-step">
-                        <div class="step <?= $status === 'pending' ? 'active' : '' ?>">
-                            <i class="bi bi-hourglass-split"></i>
-                            <br>Pending
-                        </div>
-                        <div class="step <?= $status === 'shipped' ? 'active' : '' ?>">
-                            <i class="bi bi-truck"></i>
-                            <br>Shipped
-                        </div>
-                        <div class="step <?= $status === 'delivered' ? 'active' : '' ?>">
-                            <i class="bi bi-box2-check"></i>
-                            <br>Delivered
-                        </div>
-                    </div>
-
-                    <!-- Action buttons -->
-                    <div class="d-flex justify-content-between mt-3">
-                        <a href="track_order.php?id=<?= $row['order_id'] ?>" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-truck"></i> Track Order
-                        </a>
-                    </div>
-                </div>
+    if ($result->num_rows > 0): 
+        while ($row = $result->fetch_assoc()):
+    ?>
+        <div class="card mb-4 order-card">
+            <div class="order-header">
+                🧾 Order #<?= $row['order_id']; ?> — <span class="text-primary"><?= htmlspecialchars($row['status']); ?></span>
             </div>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <div class="alert alert-info"><i class="bi bi-info-circle"></i> You haven’t placed any orders yet.</div>
+            <div class="card-body">
+                <p><strong>Date:</strong> <?= $row['order_datetime']; ?></p>
+                <p><strong>Customer Name:</strong> <?= htmlspecialchars($row['customer_name']); ?></p>
+                <p><strong>Items:</strong> <?= nl2br(htmlspecialchars($row['order_details'])); ?></p>
+                <p><strong>Payment Method:</strong> <?= htmlspecialchars($row['payment_method']); ?></p>
+                <p class="fw-bold">Total Amount: <span class="text-success">RM <?= number_format($row['total_amount'], 2); ?></span></p>
+                <a href="customer_track_order.php?order_id=<?= $row['order_id']; ?>" class="btn btn-outline-success mt-3">
+                    <i class="bi bi-truck"></i> Track Order
+                </a>
+            </div>
+            <div class="order-footer">
+                <small>Thank you for shopping with AgriMarket!</small>
+            </div>
+        </div>
+    <?php endwhile; else: ?>
+        <div class="alert alert-warning text-center">
+            You have not made any orders yet.
+        </div>
     <?php endif; ?>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="text-center mt-4">
+        <a href="customer_dashboard.php" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
+</div>
 </body>
 </html>

@@ -116,32 +116,26 @@ $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
             font-size: 1.2rem;
             color: #155724;
         }
-        .section-title {
-            margin-top: 40px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: #155724;
-        }
     </style>
 </head>
 <body>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="#"><i class="bi bi-shop"></i> AgriMarket</a>
+        <a class="navbar-brand" href="#" style="font-size: 1.2rem;"><i class="bi bi-shop"></i> AgriMarket</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="ms-auto d-flex align-items-center">
-                <form action="product_list.php" method="get" class="d-flex search-container me-3 bg-white rounded">
-                    <input type="text" name="search" placeholder="Search products..." required>
-                    <button type="submit"><i class="bi bi-search"></i></button>
+                <form action="product_list.php" method="get" class="d-flex search-container me-3 bg-white rounded" style="max-width: 180px;">
+                    <input type="text" name="search" placeholder="Search products..." required class="form-control form-control-sm" style="font-size: 0.8rem;">
+                    <button type="submit" class="btn btn-sm" style="font-size: 1rem;"><i class="bi bi-search"></i></button>
                 </form>
 
                 <a href="customer_add_to_cart.php" class="text-white position-relative ms-3" title="Shopping Cart">
-                    <i class="bi bi-cart3 fs-4"></i>
+                    <i class="bi bi-cart3 fs-5"></i>
                     <?php if (!empty($cart)): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             <?= count($cart); ?>
@@ -151,12 +145,13 @@ $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
             </div>
 
             <ul class="navbar-nav ms-3">
-                <li class="nav-item"><a class="nav-link" href="customer_dashboard.php"><i class="bi bi-house-door"></i> Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="customer_product_list.php"><i class="bi bi-box-seam"></i> Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="customer_add_to_cart.php"><i class="bi bi-cart4"></i> My Cart</a></li>
-                <li class="nav-item"><a class="nav-link" href="customer_order_history.php"><i class="bi bi-bag-check"></i> My Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_dashboard.php" style="font-size: 0.9rem;"><i class="bi bi-house-door"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_product_list.php" style="font-size: 0.9rem;"><i class="bi bi-box-seam"></i> Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_add_to_cart.php" style="font-size: 0.9rem;"><i class="bi bi-cart4"></i> My Cart</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_order_history.php" style="font-size: 0.9rem;"><i class="bi bi-bag-check"></i> My Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="customer_track_order.php" style="font-size: 0.9rem;"><i class="bi bi-truck"></i> Track Order</a></li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="font-size: 0.9rem;">
                         <i class="bi bi-gear"></i> Settings
                     </a>
                     <ul class="dropdown-menu">
@@ -165,7 +160,7 @@ $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
                         <li><a class="dropdown-item" href="change_password.php"><i class="bi bi-lock"></i> Change Password</a></li>
                     </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                <li class="nav-item"><a class="nav-link" href="logout.php" style="font-size: 0.9rem;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
             </ul>
         </div>
     </div>
@@ -187,32 +182,6 @@ $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
         </div>
         <div class="hero-image mt-4 mt-md-0">
             <img src="farm.jpg" alt="Farm Image">
-        </div>
-    </section>
-
-    <!-- Featured Products -->
-    <section class="mt-5">
-        <h3 class="section-title"><i class="bi bi-star-fill text-warning"></i> Featured Products</h3>
-        <div class="row">
-            <?php
-            $featured = $conn->query("SELECT * FROM products ORDER BY RAND() LIMIT 3");
-            while ($prod = $featured->fetch_assoc()):
-                $image = !empty($prod['image_path']) ? $prod['image_path'] : 'default.jpg';
-                $name = !empty($prod['product_name']) ? $prod['product_name'] : 'Unnamed Product';
-                $price = isset($prod['price']) ? number_format($prod['price'], 2) : '0.00';
-                $id = isset($prod['id']) ? $prod['id'] : '#';
-            ?>
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 shadow-sm">
-                    <img src="<?= htmlspecialchars($image); ?>" class="card-img-top" alt="<?= htmlspecialchars($name); ?>">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($name); ?></h5>
-                        <p class="card-text">RM <?= $price; ?></p>
-                        <a href="product_details.php?id=<?= htmlspecialchars($id); ?>" class="btn btn-success btn-sm">View</a>
-                    </div>
-                </div>
-            </div>
-            <?php endwhile; ?>
         </div>
     </section>
 </div>
