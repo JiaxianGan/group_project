@@ -104,7 +104,6 @@ if ($edit_id) {
     </div>
 </nav>
 <div class="container mt-5 bg-white p-5 rounded-4 shadow">
-    <hr class="my-4">
     <h3><i class="fas fa-list me-2"></i>All Delivery Status Records</h3>
     <div style="text-align: right; margin-bottom: 10px;">
         <a href="staff_add_delivery.php" class="btn btn-success">
