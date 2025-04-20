@@ -5,8 +5,10 @@ if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
+
 $filter = $_GET['filter'] ?? 'daily';
 $type = $_GET['type'] ?? 'sales';
+
 switch ($filter) {
     case 'weekly':
         $group_by = "YEARWEEK(o.order_date)";
@@ -21,6 +23,7 @@ switch ($filter) {
         $label = "Date";
         break;
 }
+
 function getStoredReports($conn, $type) {
     $sql = "SELECT * FROM reports WHERE report_type = ? ORDER BY generated_at DESC LIMIT 5";
     $stmt = $conn->prepare($sql);
@@ -74,9 +77,6 @@ function getStoredReports($conn, $type) {
         .form-select {
             max-width: 200px;
         }
-        .text-small {
-            font-size: 0.85rem;
-        }
     </style>
 </head>
 <body>
@@ -94,6 +94,7 @@ function getStoredReports($conn, $type) {
         </div>
     </div>
 </nav>
+
 <div class="container">
     <div class="bg-white rounded-4 shadow p-5 mb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -107,6 +108,7 @@ function getStoredReports($conn, $type) {
                 </select>
             </form>
         </div>
+
         <div class="table-responsive mb-5">
             <table class="table table-bordered table-hover align-middle">
                 <thead>
@@ -140,6 +142,7 @@ function getStoredReports($conn, $type) {
                 </tbody>
             </table>
         </div>
+
         <h4 class="fw-bold mb-3"><i class="fas fa-database me-2"></i>Stored Reports</h4>
         <form method="get" class="mb-3">
             <input type="hidden" name="filter" value="<?= $filter ?>">
@@ -150,6 +153,7 @@ function getStoredReports($conn, $type) {
                 <option value="popular_orders" <?= $type === 'popular_orders' ? 'selected' : '' ?>>Popular Orders</option>
             </select>
         </form>
+
         <?php
         $storedReports = getStoredReports($conn, $type);
         if ($storedReports && $storedReports->num_rows > 0) {
@@ -169,6 +173,7 @@ function getStoredReports($conn, $type) {
         ?>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

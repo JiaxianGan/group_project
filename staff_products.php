@@ -1,10 +1,16 @@
 <?php
 session_start();
 include 'db_connect.php';
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
 }
+
+$username = $_SESSION['username'];
+
+$currentPage = 'staff_products.php';
 ?>
 
 <!DOCTYPE html>
@@ -58,6 +64,7 @@ if (!isset($_SESSION['username'])) {
     </style>
 </head>
 <body>
+
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand fw-bold" href="#"><i class="fas fa-tractor me-2"></i>AgriMarket</a>
@@ -66,21 +73,35 @@ if (!isset($_SESSION['username'])) {
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="staff_dashboard.php"><i class="fas fa-home me-1"></i>Staff Panel</a></li>
-                <li class="nav-item"><a class="nav-link" href="staff_delivery.php"><i class="fas fa-truck me-1"></i>Delivery</a></li>
-                <li class="nav-item"><a class="nav-link" href="staff_products.php"><i class="fas fa-warehouse me-1"></i>Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="staff_reports.php"><i class="fas fa-chart-line me-1"></i>Reports</a></li>
-                <li class="nav-item"><a class="nav-link" href="staff_profile.php"><i class="fas fa-cog me-1"></i>Profile</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="staff_dashboard.php"><i class="fas fa-home me-1"></i>Staff Panel</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="staff_delivery.php"><i class="fas fa-truck me-1"></i>Delivery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="staff_products.php"><i class="fas fa-warehouse me-1"></i>Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="staff_reports.php"><i class="fas fa-chart-line me-1"></i>Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="staff_profile.php"><i class="fas fa-cog me-1"></i>Profile</a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+
 <div class="container">
     <div class="bg-white rounded-4 shadow p-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold"><i class="fas fa-boxes me-2"></i>Product Inventory</h3>
-            <a href="staff_add_product.php" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add Product</a>
-        </div>
+        <h3 class="fw-bold mb-4"><i class="fas fa-boxes me-2"></i>Product Inventory</h3>
+        <?php
+        if (isset($_SESSION['message'])) {
+            echo '<div class="alert alert-info">' . $_SESSION['message'] . '</div>';
+            unset($_SESSION['message']);
+        }
+        ?>
         <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle">
                 <thead>
@@ -113,8 +134,8 @@ if (!isset($_SESSION['username'])) {
                                     <td>" . (int)$row['stock_quantity'] . "</td>
                                     <td>" . htmlspecialchars($row['created_at']) . "</td>
                                     <td>
-                                        <a href='edit_vendor_product.php?id=" . $row['product_id'] . "' class='btn btn-warning btn-sm'><i class='fas fa-edit'></i></a>
-                                        <a href='delete_vendor_product.php?id=" . $row['product_id'] . "' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?');\"><i class='fas fa-trash'></i></a>
+                                        <a href='staff_edit_products.php?id=" . $row['product_id'] . "&page=$currentPage' class='btn btn-warning btn-sm'><i class='fas fa-edit'></i></a>
+                                        <a href='staff_delete_products.php?id=" . $row['product_id'] . "&page=$currentPage' class='btn btn-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this product?');\"><i class='fas fa-trash'></i></a>
                                     </td>
                                 </tr>";
                         }
@@ -127,6 +148,7 @@ if (!isset($_SESSION['username'])) {
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

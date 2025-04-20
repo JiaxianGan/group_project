@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['username'])) {
     header("Location: auth.php");
     exit();
@@ -26,7 +27,6 @@ if (!isset($_SESSION['username'])) {
         }
         .navbar .nav-link {
             color: white !important;
-            font-weight: 500;
         }
         .navbar .nav-link:hover {
             background-color: #1e7e34;
@@ -35,11 +35,93 @@ if (!isset($_SESSION['username'])) {
         .container {
             margin-top: 50px;
         }
-        .card {
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
-        .card h5 {
+        .hero-text {
+            flex: 1;
+            max-width: 50%;
+        }
+        .hero-text h1 {
+            font-size: 2.5rem;
+            color: #155724;
             font-weight: bold;
+        }
+        .hero-text .highlight {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .hero-buttons {
+            margin-top: 20px;
+        }
+        .hero-buttons button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        .shop-btn {
+            background: #ffcc00;
+            color: #333;
+            font-weight: bold;
+        }
+        .shop-btn:hover {
+            background: #e6b800;
+        }
+        .info-btn {
+            background: #155724;
+            color: white;
+            border: 2px solid white;
+        }
+        .info-btn:hover {
+            background: white;
+            color: #155724;
+        }
+        .hero-image {
+            flex: 1;
+            max-width: 50%;
+            text-align: center;
+        }
+        .hero-image img {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-text {
+                max-width: 100%;
+            }
+            .hero-image {
+                max-width: 100%;
+                margin-top: 20px;
+            }
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+            .hero-buttons button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -61,46 +143,26 @@ if (!isset($_SESSION['username'])) {
             </div>
         </div>
     </nav>
+
+    <!-- Dashboard Hero Section -->
     <div class="container">
-        <div class="p-5 bg-white rounded-4 shadow">
-            <h2 class="mb-4">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
-            <div class="row text-center mb-4">
-                <div class="col-md-3">
-                    <div class="card text-white bg-success mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-truck"></i> Deliveries</h5>
-                            <p class="card-text fs-4">128</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-warning mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-box-open"></i> Low Stock</h5>
-                            <p class="card-text fs-4">6</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-primary mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-users"></i> Vendors</h5>
-                            <p class="card-text fs-4">12</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-info mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="fas fa-chart-pie"></i> Reports</h5>
-                            <p class="card-text fs-4">4</p>
-                        </div>
-                    </div>
+        <section class="hero">
+            <div class="hero-text">
+                <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+                <p>Your mission is to ensure smooth operation of AgriMarket, from product management to deliveries.</p>
+                <h1>The place where <span class="highlight">Fresh Produce</span> meets quality service</h1>
+                <p>AgriMarket brings the best produce from the farm directly to our customers. Let's make the market thrive!</p>
+                <div class="hero-buttons">
+                    <a href="staff_products.php" class="shop-btn btn">Manage Products</a>
+                    <a href="staff_delivery.php" class="info-btn btn">Manage Deliveries</a>
                 </div>
             </div>
-            <p class="text-muted text-center">Use the navigation bar above to manage deliveries, inventory, vendors, and more.</p>
-        </div>
+            <div class="hero-image">
+                <img src="farm.jpg" alt="Farm Image">
+            </div>
+        </section>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
