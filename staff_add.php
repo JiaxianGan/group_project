@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['staff_add'])) {
             <input type="text" class="form-control" id="contact" name="contact" required>
         </div>
         <button type="submit" name="staff_add" class="btn btn-primary">Add Staff</button>
+        <a href="vendor_staff.php" class="btn btn-secondary">Back</a>
     </form>
 </div>
 </body>
