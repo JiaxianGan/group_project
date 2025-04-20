@@ -2,16 +2,32 @@
 session_start();
 include 'db_connect.php';
 
+// Fetch all products ordered by ID
 $sql = "SELECT * FROM products ORDER BY product_id DESC";
 $result = $conn->query($sql);
+
+// Group products by category
+$grouped_products = [];
+if ($result->num_rows > 0) {
+    while ($product = $result->fetch_assoc()) {
+        $grouped_products[$product['category']][] = $product;
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
         body {
             background-image: url('products_background.jpg');
@@ -59,9 +75,15 @@ $result = $conn->query($sql);
             margin-top: 50px;
             margin-bottom: 50px;
         }
+        h3.category-heading {
+            margin-top: 50px;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">AgriMarket</a>
@@ -80,40 +102,60 @@ $result = $conn->query($sql);
             </div>
         </div>
     </nav>
-    
+
+    <!-- Main Container -->
     <div class="container product-container">
         <h2 class="text-white">Product Management</h2>
         <p>Manage all your agricultural products in one place.</p>
         <a href="add_product.php" class="btn btn-light mb-3">Add New Product</a>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            <?php if ($result->num_rows > 0): ?>
-                <?php while($product = $result->fetch_assoc()): ?>
-                    <div class="col">
-                        <div class="card product-card">
-                            <img src="uploads/<?php echo htmlspecialchars($product['image_url']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                            <div class="card-body d-flex flex-column">
-                                <div class="product-body">
-                                    <h5 class="card-title text-success"><?php echo htmlspecialchars($product['name']); ?></h5>
-                                    <p class="card-text"><?php echo htmlspecialchars($product['description']); ?></p>
-                                    <p class="text-success fw-bold">RM <?php echo number_format($product['price'], 2); ?></p>
-                                </div>
-                                <div class="btn-group">
-                                    <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">Edit</a>
-                                    <a href="delete_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+        <?php if (!empty($grouped_products)): ?>
+            <?php foreach ($grouped_products as $category => $products): ?>
+                <h3 class="category-heading">
+                    <?php
+                    // Assign emoji based on category
+                    $icon = match ($category) {
+                        'Fresh Produce' => '🌽',
+                        'Fruits' => '🍍',
+                        'Herbs & Spices' => '🌿',
+                        'Fertilizers & Soil Enhancers' => '🌱',
+                        'Seeds & Saplings' => '🌾',
+                        default => '🛒',
+                    };
+                    echo "$icon $category";
+                    ?>
+                </h3>
+
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <?php foreach ($products as $product): ?>
+                        <div class="col">
+                            <div class="card product-card">
+                                <img src="uploads/<?php echo htmlspecialchars($product['image_url']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                                <div class="card-body d-flex flex-column">
+                                    <div class="product-body">
+                                        <h5 class="card-title text-success"><?php echo htmlspecialchars($product['name']); ?></h5>
+                                        <p class="card-text"><?php echo htmlspecialchars($product['description']); ?></p>
+                                        <p class="text-success fw-bold">RM <?php echo number_format($product['price'], 2); ?></p>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-primary">Edit</a>
+                                        <a href="delete_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p class="text-white">No products found.</p>
-            <?php endif; ?>
-        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-white">No products found.</p>
+        <?php endif; ?>
     </div>
 
     <div class="spacer"></div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

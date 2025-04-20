@@ -12,8 +12,9 @@ if (!isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriMarket Dashboard</title>
+    <title>AgriMarket - Staff Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background-image: url('dashboard_background.jpg');
@@ -31,8 +32,8 @@ if (!isset($_SESSION['username'])) {
             background-color: #1e7e34;
             border-radius: 5px;
         }
-        .dashboard-container {
-            padding: 40px;
+        .container {
+            margin-top: 50px;
         }
         .hero {
             display: flex;
@@ -122,72 +123,38 @@ if (!isset($_SESSION['username'])) {
                 font-size: 0.9rem;
             }
         }
-        .search-container {
-            display: flex;
-            align-items: center;
-            background: white;
-            padding: 5px;
-            border-radius: 5px;
-            margin-right: 20px;
-        }
-        .search-container input {
-            border: none;
-            padding: 5px;
-            outline: none;
-            width: 200px;
-        }
-        .search-container button {
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .icons span {
-            margin-left: 10px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">AgriMarket</a>
+            <a class="navbar-brand fw-bold" href="#"><i class="fas fa-tractor me-2"></i>AgriMarket</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <div class="search-container">
-                        <input type="text" placeholder="Search Products...">
-                        <button>🔍</button>
-                        <div class="icons">
-                            <span>👤</span>
-                            <span>🛒</span>
-                        </div>
-                    </div>
-                    <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
-                    <li class="nav-item"><a class="nav-link" href="orders.php">Orders</a></li>
-                    <li class="nav-item"><a class="nav-link" href="vendors.php">Vendors</a></li>
-                    <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
-                    <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_dashboard.php"><i class="fas fa-home me-1"></i>Staff Panel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_delivery.php"><i class="fas fa-truck me-1"></i>Delivery</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_products.php"><i class="fas fa-warehouse me-1"></i>Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_reports.php"><i class="fas fa-chart-line me-1"></i>Reports</a></li>
+                    <li class="nav-item"><a class="nav-link" href="staff_profile.php"><i class="fas fa-cog me-1"></i>Profile</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <!-- Dashboard Hero Section -->
-    <div class="container dashboard-container">
+    <div class="container">
         <section class="hero">
             <div class="hero-text">
-                <!-- Welcome Message -->
                 <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
-                <p>Enjoy managing your agricultural market.</p>
-                <a href="about.php" class="about-btn btn btn-outline-success">ABOUT OUR FARM</a>
-                <h1>The Place Where <br> <span class="highlight">Natural Flavour</span> is Born</h1>
-                <p>We bring you fresh, natural flavors straight from the farm. Experience the best quality produce with us.</p>
+                <p>Your mission is to ensure smooth operation of AgriMarket, from product management to deliveries.</p>
+                <h1>The place where <span class="highlight">Fresh Produce</span> meets quality service</h1>
+                <p>AgriMarket brings the best produce from the farm directly to our customers. Let's make the market thrive!</p>
                 <div class="hero-buttons">
-                    <a href="products.php" class="shop-btn btn">Shop Online</a>
-                    <a href="vendors.php" class="info-btn btn">Know More</a>
+                    <a href="staff_products.php" class="shop-btn btn">Manage Products</a>
+                    <a href="staff_delivery.php" class="info-btn btn">Manage Deliveries</a>
                 </div>
             </div>
             <div class="hero-image">
