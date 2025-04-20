@@ -18,7 +18,7 @@ if (!isset($_SESSION['username'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-image: url('dashboard_background.jpg');
+            background-image: url('admin_background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -183,6 +183,66 @@ if (!isset($_SESSION['username'])) {
         .section {
             scroll-margin-top: 70px; /* For smooth scrolling with fixed navbar */
         }
+        /* New styles for the dashboard */
+        .card {
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-good {
+            background-color: #28a745;
+        }
+        .status-warning {
+            background-color: #ffc107;
+        }
+        .status-danger {
+            background-color: #dc3545;
+        }
+        .metric-card {
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .bg-gradient-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .bg-gradient-info {
+            background: linear-gradient(45deg, #17a2b8, #0dcaf0);
+        }
+        .bg-gradient-warning {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+        }
+        .activity-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .progress-thin {
+            height: 6px;
+        }
     </style>
 </head>
 <body>
@@ -196,40 +256,36 @@ if (!isset($_SESSION['username'])) {
                     <li class="nav-item">
                         <a class="nav-link" href="#dashboard-hero"><i class="fas fa-home"></i> AgriMarket</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-search"></i> Search & Management
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="searchDropdown">
-                            <li><a class="dropdown-item" href="#search-section"><i class="fas fa-search"></i> Product Search</a></li>
-                            <li><a class="dropdown-item" href="#user-management-section"><i class="fas fa-users-cog"></i> User Management</a></li>
-                        </ul>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#role-section"><i class="fas fa-user-tag"></i> Role Management</a>
+                        <a class="nav-link" href="#user-management-section"><i class="fas fa-users-cog"></i> User Management</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#system-section"><i class="fas fa-server"></i> System Overview</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="ordersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-shopping-cart"></i> Orders & Products
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="ordersDropdown">
-                            <li><a class="dropdown-item" href="#orders-section"><i class="fas fa-clipboard-list"></i> Recent Orders</a></li>
-                            <li><a class="dropdown-item" href="#product-approval-section"><i class="fas fa-check-circle"></i> Product Approval</a></li>
-                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#dynamic-data-section"><i class="fas fa-database"></i> Dynamic Data</a>
                     </li>
                 </ul>
-                <div class="d-flex">
-                    <a class="nav-link" href="logout.php" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge bg-danger rounded-pill" id="notification-badge">3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notification-menu">
+                            <li><a class="dropdown-item" href="#">Server load high (85%)</a></li>
+                            <li><a class="dropdown-item" href="#">New user registration</a></li>
+                            <li><a class="dropdown-item" href="#">Database backup completed</a></li>
+                        </ul>
+                    </div>
+                    <a class="nav-link" href="logout.php" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Dashboard Hero Section -->
     <div id="dashboard-hero" class="container dashboard-container section">
@@ -239,21 +295,36 @@ if (!isset($_SESSION['username'])) {
                 <h2>Welcome, Admin <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
                 <p>Here's a quick overview of your dashboard.</p>
                 <h1>Admin Dashboard Overview</h1>
-                <ul class="list-group mb-3">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Active Users
-                        <span class="badge bg-primary rounded-pill">24</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Pending Orders
-                        <span class="badge bg-warning rounded-pill">5</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        System Alerts
-                        <span class="badge bg-danger rounded-pill">2</span>
-                    </li>
-                </ul>
-                <div class="hero-buttons">
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="metric-card bg-gradient-success">
+                            <h5><i class="fas fa-users"></i> Active Users</h5>
+                            <h2 id="active-users-count">24</h2>
+                            <div class="progress progress-thin mt-2">
+                                <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card bg-gradient-info">
+                            <h5><i class="fas fa-shopping-cart"></i> Pending Orders</h5>
+                            <h2 id="pending-orders-count">5</h2>
+                            <div class="progress progress-thin mt-2">
+                                <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card bg-gradient-warning">
+                            <h5><i class="fas fa-exclamation-triangle"></i> System Alerts</h5>
+                            <h2 id="system-alerts-count">2</h2>
+                            <div class="progress progress-thin mt-2">
+                                <div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-buttons mt-4">
                     <a href="#dynamic-data-section" class="btn btn-outline-success">View Dynamic Data</a>
                     <a href="#user-management-section" class="btn btn-outline-primary">Manage Users</a>
                     <a href="#system-section" class="btn btn-outline-danger">System Overview</a>
@@ -265,96 +336,213 @@ if (!isset($_SESSION['username'])) {
         </section>
     </div>
 
-    <!-- Search and User Management Section -->
-    <div id="search-section" class="container dashboard-container section">
-        <h3 class="mb-4"><i class="fas fa-search"></i> Product Search</h3>
-        <section class="search-user-management p-4 bg-white rounded shadow">
-            <div class="search-container mb-3 w-100">
-                <input type="text" placeholder="Search Products..." class="w-100">
-                <button class="search-button"><i class="fas fa-search"></i></button>
-            </div>
-            <div id="search-results" class="mt-3">
-                <!-- Search results will appear here -->
-                <div class="alert alert-info">Enter a search term above to find products</div>
-            </div>
-        </section>
-    </div>
-    
+    <!-- User Management Section -->
     <div id="user-management-section" class="container dashboard-container section">
         <h3 class="mb-4"><i class="fas fa-users-cog"></i> User Management</h3>
         <section class="user-management p-4 bg-white rounded shadow">
-            <!-- User Management Actions -->
+            <!-- User Management Controls -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <input type="text" id="userSearchInput" class="form-control" placeholder="Search users...">
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-success" id="addUserBtn">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </button>
+                </div>
+            </div>
+            
+            <!-- User List -->
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped" id="usersTable">
                     <thead>
                         <tr>
                             <th>User ID</th>
                             <th>Username</th>
                             <th>Role</th>
                             <th>Actions</th>
+                            <th>Last Login</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        $sql = "SELECT user_id, username, role FROM users";
+                        $sql = "SELECT user_id, username, role FROM users ORDER BY user_id DESC LIMIT 10";
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
                             while($row = $result->fetch_assoc()) {
+                                // Random status and last login for demonstration
+                                $statuses = ["Active", "Inactive"];
+                                $status = $statuses[array_rand($statuses)];
+                                $statusClass = $status == "Active" ? "text-success" : "text-secondary";
+                                $lastLogin = date("Y-m-d H:i:s", strtotime("-" . rand(1, 30) . " hours"));
+                                
                                 echo "<tr>
                                         <td>{$row['user_id']}</td>
                                         <td>{$row['username']}</td>
                                         <td>{$row['role']}</td>
+                                        <td><span class='$statusClass'><i class='fas fa-circle fa-sm me-1'></i>$status</span></td>
+                                        <td>$lastLogin</td>
                                         <td>
-                                            <button class='btn btn-sm btn-primary edit-user' data-user-id='{$row['user_id']}'><i class='fas fa-edit'></i> Edit</button>
-                                            <button class='btn btn-sm btn-danger delete-user' data-user-id='{$row['user_id']}'><i class='fas fa-trash'></i> Delete</button>
+                                            <button class='btn btn-sm btn-primary edit-user' data-user-id='{$row['user_id']}' data-username='{$row['username']}' data-role='{$row['role']}'><i class='fas fa-edit'></i></button>
+                                            <button class='btn btn-sm btn-danger delete-user' data-user-id='{$row['user_id']}'><i class='fas fa-trash'></i></button>
+                                            <button class='btn btn-sm btn-info reset-password' data-user-id='{$row['user_id']}'><i class='fas fa-key'></i></button>
                                         </td>
                                       </tr>";
                             }
                         } else {
-                            echo "<tr><td colspan='4'>No users found</td></tr>";
+                            echo "<tr><td colspan='6'>No users found</td></tr>";
                         }
                         ?>
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div>
+                    <span>Showing <strong>1</strong> to <strong>10</strong> of <strong id="total-users">25</strong> users</span>
+                </div>
+                <ul class="pagination">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </div>
         </section>
     </div>
 
-    <!-- Role Management and System Overview Section -->
-    <div id="role-section" class="container dashboard-container section">
-        <h3 class="mb-4"><i class="fas fa-user-tag"></i> Role Management</h3>
-        <section class="role-system-overview p-4 bg-white rounded shadow">
-            <!-- Role Management Form -->
-            <form id="role-form" class="mb-4">
-                <div class="row g-3 align-items-center">
-                    <div class="col-auto">
-                        <label for="user-select" class="col-form-label">Select User:</label>
-                    </div>
-                    <div class="col-auto">
-                        <select id="user-select" class="form-select">
-                            <option value="1">admin_user</option>
-                            <option value="2">vendor_user</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <label for="role-select" class="col-form-label">Assign Role:</label>
-                    </div>
-                    <div class="col-auto">
-                        <select id="role-select" name="role" class="form-select">
-                            <option value="admin">Administrator</option>
-                            <option value="vendor">Vendor</option>
-                            <option value="user">Regular User</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-success">Change Role</button>
-                    </div>
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </form>
-        </section>
+                <div class="modal-body">
+                    <form id="add-user-form" action="add_user.php" method="POST">
+                        <div class="mb-3">
+                            <label for="add-username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="add-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="add-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="add-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-role" class="form-label">Role</label>
+                            <select id="add-role" class="form-select" required>
+                                <option value="">Select Role</option>
+                                <option value="admin">Administrator</option>
+                                <option value="vendor">Vendor</option>
+                                <option value="staff">Staff</option>
+                                <option value="user">Regular User</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-user-form" action="edit_user.php" method="POST">
+                        <input type="hidden" id="edit-user-id">
+                        <div class="mb-3">
+                            <label for="edit-username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="edit-username" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit-email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-role" class="form-label">Role</label>
+                            <select id="edit-role" class="form-select">
+                                <option value="admin">Administrator</option>
+                                <option value="vendor">Vendor</option>
+                                <option value="staff">Staff</option>
+                                <option value="user">Regular User</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reset-password-form" action="reset_password.php" method="POST">
+                        <input type="hidden" id="reset-user-id">
+                        <div class="mb-3">
+                            <label for="reset-username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="reset-username" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm-password" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Reset Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the user <strong id="delete-username"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <!-- CHANGE: Added form for delete submission -->
+                    <form id="delete-user-form" action="delete_user.php" method="POST">
+                        <input type="hidden" id="delete-user-id" name="user_id">
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview Section -->
     <div id="system-section" class="container dashboard-container section">
         <h3 class="mb-4"><i class="fas fa-server"></i> System Overview</h3>
         <section class="system-overview p-4 bg-white rounded shadow">
@@ -362,12 +550,44 @@ if (!isset($_SESSION['username'])) {
                 <div class="col-md-6">
                     <div class="card mb-3">
                         <div class="card-header bg-success text-white">
-                            <i class="fas fa-server"></i> System Status
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-server"></i> System Status</span>
+                                <button class="btn btn-sm btn-light" id="refreshSystemStatus"><i class="fas fa-sync-alt"></i></button>
+                            </div>
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">Current Status</h5>
-                            <p class="card-text">System Status: <span id="system-status" class="badge bg-info">Loading...</span></p>
-                            <p class="card-text">Last Updated: <span id="last-updated">--</span></p>
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5>Server Status</h5>
+                                <span id="system-status" class="badge bg-success">Online</span>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>CPU Usage</span>
+                                    <span id="cpu-usage">45%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 45%" id="cpu-progress"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Memory Usage</span>
+                                    <span id="memory-usage">65%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 65%" id="memory-progress"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Disk Usage</span>
+                                    <span id="disk-usage">32%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 32%" id="disk-progress"></div>
+                                </div>
+                            </div>
+                            <p class="card-text mt-3">Last Updated: <span id="last-updated"><?php echo date('Y-m-d H:i:s'); ?></span></p>
                         </div>
                     </div>
                 </div>
@@ -377,121 +597,62 @@ if (!isset($_SESSION['username'])) {
                             <i class="fas fa-chart-bar"></i> System Metrics
                         </div>
                         <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                <?php
-                                $sql = "SELECT active_users, server_load, db_status FROM system_metrics WHERE id = 1";
-                                $result = $conn->query($sql);
-
-                                if ($result->num_rows > 0) {
-                                    $row = $result->fetch_assoc();
-                                    echo "<li class='list-group-item d-flex justify-content-between align-items-center'>
-                                            Active Users
-                                            <span class='badge bg-primary rounded-pill'>{$row['active_users']}</span>
-                                          </li>
-                                          <li class='list-group-item d-flex justify-content-between align-items-center'>
-                                            Server Load
-                                            <span class='badge bg-success rounded-pill'>{$row['server_load']}</span>
-                                          </li>
-                                          <li class='list-group-item d-flex justify-content-between align-items-center'>
-                                            Database Connection
-                                            <span class='badge bg-success rounded-pill'>{$row['db_status']}</span>
-                                          </li>";
-                                } else {
-                                    echo "<li class='list-group-item'>No system metrics available</li>";
-                                }
-                                ?>
-                            </ul>
+                            <canvas id="systemMetricsChart" width="400" height="250"></canvas>
+                            <div class="list-group mt-3">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Active Users
+                                    <span class="badge bg-primary rounded-pill" id="active-users">24</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Server Load
+                                    <span class="badge bg-success rounded-pill" id="server-load">Normal</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Database Connection
+                                    <span class="badge bg-success rounded-pill" id="db-status">Connected</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
-
-    <!-- Recent Orders and Product Approval Section -->
-    <div id="orders-section" class="container dashboard-container section">
-        <h3 class="mb-4"><i class="fas fa-clipboard-list"></i> Recent Orders</h3>
-        <section class="orders p-4 bg-white rounded shadow">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $sql = "SELECT order_id, customer_id, created_at, total_price, order_status FROM orders ORDER BY created_at DESC LIMIT 5";
-                        $result = $conn->query($sql);
-
-                        if ($result->num_rows > 0) {
-                            while($row = $result->fetch_assoc()) {
-                                echo "<tr>
-                                        <td>{$row['order_id']}</td>
-                                        <td>{$row['customer_id']}</td>
-                                        <td>{$row['created_at']}</td>
-                                        <td>\${$row['total_price']}</td>
-                                        <td><span class='badge bg-success'>{$row['order_status']}</span></td>
-                                        <td>
-                                            <button class='btn btn-sm btn-info view-order' data-order-id='{$row['order_id']}'><i class='fas fa-eye'></i> View</button>
-                                        </td>
-                                      </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='6'>No recent orders</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-    
-    <div id="product-approval-section" class="container dashboard-container section">
-        <h3 class="mb-4"><i class="fas fa-check-circle"></i> Product Approval</h3>
-        <section class="product-approval p-4 bg-white rounded shadow">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Product ID</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Vendor</th>
-                            <th>Price</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Organic Apples</td>
-                            <td>Fruits</td>
-                            <td>Green Farm</td>
-                            <td>$3.99/lb</td>
-                            <td>
-                                <button class="btn btn-sm btn-success approve-product" data-product-id="1"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn btn-sm btn-danger reject-product" data-product-id="1"><i class="fas fa-times"></i> Reject</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Fresh Carrots</td>
-                            <td>Vegetables</td>
-                            <td>Harvest Valley</td>
-                            <td>$2.49/lb</td>
-                            <td>
-                                <button class="btn btn-sm btn-success approve-product" data-product-id="2"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn btn-sm btn-danger reject-product" data-product-id="2"><i class="fas fa-times"></i> Reject</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            
+            <!-- System Logs -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-list-alt"></i> System Logs</span>
+                                <div>
+                                    <select class="form-select form-select-sm" id="log-filter">
+                                        <option value="all">All Logs</option>
+                                        <option value="error">Errors</option>
+                                        <option value="warning">Warnings</option>
+                                        <option value="info">Information</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm" id="systemLogsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Type</th>
+                                            <th>Message</th>
+                                            <th>Source</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Log entries will be populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -512,14 +673,71 @@ if (!isset($_SESSION['username'])) {
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card">
+                <div class="card">
                         <div class="card-header bg-success text-white">
                             <i class="fas fa-list"></i> Latest Activities
                         </div>
                         <div class="card-body">
-                            <ul class="list-group dynamic-activities-list">
-                                <li class="list-group-item">Loading activities...</li>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                                <select class="form-select" id="activity-filter">
+                                    <option value="all">All Activities</option>
+                                    <option value="login">Login</option>
+                                    <option value="data">Data Changes</option>
+                                    <option value="system">System Events</option>
+                                </select>
+                            </div>
+                            <ul class="list-group" id="activity-list">
+                                <!-- Activities will be loaded by JavaScript -->
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Activity Analysis -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <i class="fas fa-users-cog"></i> User Activity Analytics
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Login Traffic</h5>
+                                            <canvas id="loginTrafficChart" width="400" height="200"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">User Roles Distribution</h5>
+                                            <canvas id="userRolesChart" width="400" height="200"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="userActivityTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Last Login</th>
+                                            <th>Actions Performed</th>
+                                            <th>Login Location</th>
+                                            <th>Device</th>
+                                            <th>IP Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- User activity data will be loaded by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -529,427 +747,6 @@ if (!isset($_SESSION['username'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-    <script>
-    // Search Functionality
-    function handleSearch() {
-        const searchInputs = document.querySelectorAll('.search-container input');
-        const searchButtons = document.querySelectorAll('.search-button');
-        
-        searchButtons.forEach((button, index) => {
-            button.addEventListener('click', () => {
-                const query = searchInputs[index].value;
-                // Perform AJAX request to search endpoint
-                fetch(`admin_product_search.php?query=${encodeURIComponent(query)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Search results:', data);
-                        // Update search results display
-                        const searchResults = document.getElementById('search-results');
-                        if (searchResults) {
-                            if (data && data.length > 0) {
-                                let resultsHtml = '<div class="list-group">';
-                                data.forEach(item => {
-                                    resultsHtml += `
-                                        <a href="#" class="list-group-item list-group-item-action">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h5 class="mb-1">${item.name}</h5>
-                                                <small>$${item.price}</small>
-                                            </div>
-                                            <p class="mb-1">${item.description}</p>
-                                            <small>Category: ${item.category}</small>
-                                        </a>
-                                    `;
-                                });
-                                resultsHtml += '</div>';
-                                searchResults.innerHTML = resultsHtml;
-                            } else {
-                                searchResults.innerHTML = '<div class="alert alert-warning">No results found</div>';
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Search error:', error);
-                        const searchResults = document.getElementById('search-results');
-                        if (searchResults) {
-                            searchResults.innerHTML = '<div class="alert alert-danger">Error performing search</div>';
-                        }
-                    });
-            });
-        });
-
-        // Also handle pressing Enter key in search inputs
-        searchInputs.forEach((input, index) => {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    searchButtons[index].click();
-                }
-            });
-        });
-    }
-
-    // User Management
-    function handleUserActions() {
-        document.querySelectorAll('.edit-user').forEach(button => {
-            button.addEventListener('click', () => {
-                const userId = button.dataset.userId;
-                console.log('Edit user:', userId);
-                // Open edit modal or send AJAX request
-                alert(`Opening edit form for user ID: ${userId}`);
-            });
-        });
-        document.querySelectorAll('.delete-user').forEach(button => {
-            button.addEventListener('click', () => {
-                const userId = button.dataset.userId;
-                console.log('Delete user:', userId);
-                // Confirm and send AJAX request to delete user
-                if (confirm(`Are you sure you want to delete user ID: ${userId}?`)) {
-                    // Send delete request
-                    alert(`User ID: ${userId} would be deleted (simulated)`);
-                }
-            });
-        });
-    }
-
-    // Role Management
-    function handleRoleChange() {
-        const roleForm = document.querySelector('#role-form');
-        if (roleForm) {
-            roleForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const formData = new FormData(roleForm);
-                const userId = document.getElementById('user-select').value;
-                const role = document.getElementById('role-select').value;
-                
-                console.log(`Changing role for user ID: ${userId} to ${role}`);
-                
-                fetch('/change-role', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Role change response:', data);
-                    alert(`Role updated successfully for user ID: ${userId} (simulated)`);
-                })
-                .catch(error => {
-                    console.error('Error changing role:', error);
-                    alert('There was an error updating the role');
-                });
-            });
-        }
-    }
-
-    // System Overview
-    function updateSystemOverview() {
-        fetch('/system-status')
-            .then(response => response.json())
-            .then(data => {
-                const statusElement = document.getElementById('system-status');
-                if (statusElement) {
-                    statusElement.textContent = data.status || 'Online';
-                    // Add appropriate class based on status
-                    statusElement.className = 'badge ' + (data.status === 'Online' ? 'bg-success' : 'bg-warning');
-                }
-                
-                const lastUpdatedElement = document.getElementById('last-updated');
-                if (lastUpdatedElement) {
-                    lastUpdatedElement.textContent = new Date().toLocaleString();
-                }
-                
-                console.log('System status:', data);
-            })
-            .catch(error => {
-                console.error('Error fetching system status:', error);
-                const statusElement = document.getElementById('system-status');
-                if (statusElement) {
-                    statusElement.textContent = 'Unknown';
-                    statusElement.className = 'badge bg-danger';
-                }
-            });
-    }
-
-    // Recent Orders
-    function handleOrderView() {
-        document.querySelectorAll('.view-order').forEach(button => {
-            button.addEventListener('click', () => {
-                const orderId = button.dataset.orderId;
-                console.log('View order:', orderId);
-                // Open order details modal or fetch order details
-                alert(`Viewing details for Order ID: ${orderId}`);
-            });
-        });
-    }
-
-    // Product Approval
-    function handleProductApproval() {
-        document.querySelectorAll('.approve-product').forEach(button => {
-            button.addEventListener('click', () => {
-                const productId = button.dataset.productId;
-                console.log('Approve product:', productId);
-                // Send AJAX request to approve product
-                fetch(`/approve-product/${productId}`, {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Product approval response:', data);
-                    alert(`Product ID: ${productId} approved successfully (simulated)`);
-                    // Could update UI here to remove the product from the approval list
-                })
-                .catch(error => {
-                    console.error('Error approving product:', error);
-                    alert('There was an error approving the product');
-                });
-            });
-        });
-        
-        document.querySelectorAll('.reject-product').forEach(button => {
-            button.addEventListener('click', () => {
-                const productId = button.dataset.productId;
-                console.log('Reject product:', productId);
-                // Send AJAX request to reject product
-                if (confirm(`Are you sure you want to reject product ID: ${productId}?`)) {
-                    fetch(`/reject-product/${productId}`, {
-                        method: 'POST'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Product rejection response:', data);
-                        alert(`Product ID: ${productId} rejected (simulated)`);
-                        // Could update UI here to remove the product from the approval list
-                    })
-                    .catch(error => {
-                        console.error('Error rejecting product:', error);
-                        alert('There was an error rejecting the product');
-                    });
-                }
-            });
-        });
-    }
-
-    // Dynamic Data Loading - now includes chart creation
-    function loadDynamicData() {
-        fetch('/dashboard-data')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Dynamic data:', data);
-                
-                // Update activities list
-                const activitiesList = document.querySelector('.dynamic-activities-list');
-                if (activitiesList) {
-                    if (data && data.activities && data.activities.length > 0) {
-                        let activitiesHtml = '';
-                        data.activities.forEach(activity => {
-                            activitiesHtml += `
-                                <li class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6>${activity.description}</h6>
-                                        <small>${activity.time}</small>
-                                    </div>
-                                    <small class="text-muted">By: ${activity.user}</small>
-                                </li>
-                            `;
-                        });
-                        activitiesList.innerHTML = activitiesHtml;
-                    } else {
-                        activitiesList.innerHTML = '<li class="list-group-item">No recent activities</li>';
-                    }
-                }
-                
-                // Create sales chart
-                const ctx = document.getElementById('salesChart');
-                if (ctx && data && data.salesData) {
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.salesData.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                            datasets: [{
-                                label: 'Sales ($)',
-                                data: data.salesData.values || [12000, 19000, 15000, 21000, 18000],
-                                backgroundColor: [
-                                    'rgba(21, 87, 36, 0.6)',
-                                    'rgba(21, 87, 36, 0.6)',
-                                    'rgba(21, 87, 36, 0.7)',
-                                    'rgba(21, 87, 36, 0.8)',
-                                    'rgba(21, 87, 36, 0.9)',
-                                    'rgba(21, 87, 36, 1.0)'
-                                ],
-                                borderColor: [
-                                    'rgba(21, 87, 36, 1)',
-                                    'rgba(21, 87, 36, 1)',
-                                    'rgba(21, 87, 36, 1)',
-                                    'rgba(21, 87, 36, 1)',
-                                    'rgba(21, 87, 36, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            responsive: true
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error loading dynamic data:', error);
-                
-                // Handle error states for charts and activity list
-                const activitiesList = document.querySelector('.dynamic-activities-list');
-                if (activitiesList) {
-                    activitiesList.innerHTML = '<li class="list-group-item text-danger">Error loading activities</li>';
-                }
-                
-                // Create placeholder chart with error message
-                const ctx = document.getElementById('salesChart');
-                if (ctx) {
-                    const fallbackData = {
-                        labels: ['No Data'],
-                        datasets: [{
-                            label: 'Error Loading Sales Data',
-                            data: [0],
-                            backgroundColor: ['rgba(220, 53, 69, 0.6)'],
-                            borderColor: ['rgba(220, 53, 69, 1)'],
-                            borderWidth: 1
-                        }]
-                    };
-                    
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: fallbackData,
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            responsive: true
-                        }
-                    });
-                }
-            });
-    }
-
-    // Simulated data for demo when real endpoints aren't available
-    function simulateDynamicData() {
-        // Mock fetch response for system status
-        window.fetch = function(url) {
-            console.log('Simulated fetch:', url);
-            
-            return new Promise((resolve) => {
-                let responseData = {};
-                
-                if (url === '/system-status') {
-                    responseData = {
-                        status: 'Online',
-                        lastUpdated: new Date().toISOString()
-                    };
-                } else if (url === '/dashboard-data') {
-                    responseData = {
-                        salesData: {
-                            labels: ['January', 'February', 'March', 'April', 'May'],
-                            values: [12500, 19200, 15700, 21300, 18900]
-                        },
-                        activities: [
-                            {
-                                description: 'New product added',
-                                time: '10 minutes ago',
-                                user: 'vendor_user'
-                            },
-                            {
-                                description: 'Order #143 completed',
-                                time: '25 minutes ago',
-                                user: 'system'
-                            },
-                            {
-                                description: 'User role updated',
-                                time: '1 hour ago',
-                                user: 'admin_user'
-                            },
-                            {
-                                description: 'System maintenance completed',
-                                time: '3 hours ago',
-                                user: 'system'
-                            }
-                        ]
-                    };
-                } else if (url.includes('/search')) {
-                    const query = url.split('=')[1];
-                    if (query && query.length > 0) {
-                        responseData = [
-                            {
-                                id: 1,
-                                name: 'Organic Apples',
-                                description: 'Fresh organic apples from local farms',
-                                category: 'Fruits',
-                                price: '3.99'
-                            },
-                            {
-                                id: 2,
-                                name: 'Fresh Carrots',
-                                description: 'Locally grown carrots, perfect for salads and cooking',
-                                category: 'Vegetables',
-                                price: '2.49'
-                            }
-                        ];
-                    } else {
-                        responseData = [];
-                    }
-                }
-                
-                const response = {
-                    json: () => Promise.resolve(responseData)
-                };
-                resolve(response);
-            });
-        };
-    }
-
-    // Smooth scrolling for navigation links
-    function setupSmoothScrolling() {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-    }
-
-    // Initialize all functions when DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        // Setup simulation for demo purposes
-        simulateDynamicData();
-        
-        // Initialize all components
-        handleSearch();
-        handleUserActions();
-        handleRoleChange();
-        updateSystemOverview();
-        handleOrderView();
-        handleProductApproval();
-        loadDynamicData();
-        setupSmoothScrolling();
-        
-        // Set initial system status
-        document.getElementById('system-status').textContent = 'Online';
-        document.getElementById('system-status').className = 'badge bg-success';
-        document.getElementById('last-updated').textContent = new Date().toLocaleString();
-        
-        console.log('Dashboard initialized successfully');
-    });
-    </script>
+    <script src="admin_dashboard.js"></script>
 </body>
 </html>
