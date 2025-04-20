@@ -36,9 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label>Status:</label>
                 <select name="status" class="form-select" required>
                     <option value="">Select</option>
+                    <option value="delivering">Delivering</option>
                     <option value="delivered">Delivered</option>
-                    <option value="failed">Failed</option>
                     <option value="delayed">Delayed</option>
+                    <option value="failed">Failed</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-success">Add Delivery</button>
