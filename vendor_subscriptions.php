@@ -44,7 +44,7 @@ if (isset($_GET['delete_id'])) {
             background-attachment: fixed;
         }
         .navbar {
-            background-color:rgb(3, 19, 250) !important;
+            background-color:rgba(3, 250, 139, 0.83) !important;
         }
         .navbar .nav-link {
             color:black !important;
@@ -57,7 +57,7 @@ if (isset($_GET['delete_id'])) {
             padding: 40px;
             background: palegoldenrod;
             border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(165, 2, 215, 0.83);
+            box-shadow: 0px 4px 10px rgba(2, 215, 183, 0.83);
         }
         .navbar-brand {
             color:rgb(26, 21, 1); /* Change this to your desired color */
@@ -91,7 +91,7 @@ if (isset($_GET['delete_id'])) {
                 <tr>
                     <th>Plan Name</th>
                     <th>Price</th>
-                    <th>Duration</th>
+                    <th>Duration (Months)</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -111,7 +111,7 @@ if (isset($_GET['delete_id'])) {
         </table>
 
         <a href="add_subscription.php" class="btn btn-success">Add New Subscription Plan</a>
-        <a href="vendors_dashboard.php" class="btn btn-secondary mt-3">Back</a>
+        <a href="vendors_dashboard.php" class="btn btn-secondary">Back</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
