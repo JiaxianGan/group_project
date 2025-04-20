@@ -197,7 +197,7 @@ $product_result = $product_stmt->get_result();
 
 <div class="bottom-buttons">
     <a href="customer_dashboard.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-circle"></i> Back to Dashboard</a>
-    <a href="payment_page.php" class="btn btn-success"><i class="bi bi-credit-card-2-front-fill"></i> Checkout</a>
+    <a href="customer_payment.php" class="btn btn-success"><i class="bi bi-credit-card-2-front-fill"></i> Checkout</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

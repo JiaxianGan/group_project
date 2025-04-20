@@ -11,8 +11,8 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'customer') {
 $username = $_SESSION['username'];
 
 // Use prepared statement for security
-$stmt = $conn->prepare("SELECT * FROM orders WHERE customer_name = ? ORDER BY order_date DESC");
-$stmt->bind_param("s", $username);
+$stmt = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_datetime DESC");
+$stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $orders = $stmt->get_result();
 ?>
@@ -104,10 +104,10 @@ $orders = $stmt->get_result();
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
                     <h5 class="card-title">
-                        Order #<?= $row['order_id'] ?> - <?= $row['order_date'] ?>
+                        Order #<?= $row['order_id'] ?> - <?= date('d M Y, H:i', strtotime($row['order_datetime'])) ?>
                     </h5>
                     <p>Status: <span class="badge <?= $badgeClass ?> badge-status text-uppercase"><?= ucfirst($status) ?></span></p>
-                    <p>Total: RM <?= number_format($row['total_price'], 2) ?></p>
+                    <p>Total: RM <?= number_format($row['total_amount'], 2) ?></p>
 
                     <!-- Order Status Stepper -->
                     <div class="order-status-step">
